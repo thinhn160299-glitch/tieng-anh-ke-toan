@@ -109,6 +109,11 @@ td.i{font-family:'Noto Sans',sans-serif;color:var(--muted)}
     <div class="prog" id="fcPos"></div>
     <div class="fc" id="fc"></div>
     <div class="acts" style="justify-content:center;margin-top:14px">
+      <button class="btn pri mic" id="fcRec">🎙 Bấm để nói</button>
+    </div>
+    <div class="live" id="fcLive" style="text-align:center"></div>
+    <div id="fcResult"></div>
+    <div class="acts" style="justify-content:center;margin-top:14px">
       <button class="btn" id="fcPrev">◀ Trước</button>
       <button class="btn pri" id="fcFlip">Lật thẻ</button>
       <button class="btn" id="fcNext">Tiếp ▶</button>
@@ -118,7 +123,7 @@ td.i{font-family:'Noto Sans',sans-serif;color:var(--muted)}
       <button class="btn" id="fcHard">😓 Chưa thuộc</button>
       <button class="btn" id="fcOk">✅ Đã thuộc</button>
     </div>
-    <p class="hint" style="color:var(--muted);font-size:.85rem;margin-top:14px">Mẹo: ở chế độ “tự NÓI”, hãy nói to câu tiếng Anh <b>trước</b> khi lật thẻ, rồi bấm 🔊 so sánh với giọng mẫu.</p>
+    <p class="hint" style="color:var(--muted);font-size:.85rem;margin-top:14px">Mẹo: bấm <b>🎙 Bấm để nói</b>, nói câu tiếng Anh, bấm <b>⏹ Dừng &amp; chấm</b> để máy chấm điểm. Sau đó lật thẻ, bấm 🔊 so sánh với giọng mẫu.</p>
   </div>
 </section>
 
@@ -346,18 +351,19 @@ $('#list').addEventListener('click',e=>{
 });
 $('#fCat').onchange=renderList;$('#fq').oninput=renderList;
 $('#toggleVi').onclick=()=>{const on=document.body.classList.toggle('hideVi');$('#toggleVi').textContent=on?'👁 Hiện nghĩa':'🙈 Che nghĩa';document.querySelectorAll('.vi,.kw').forEach(x=>x.style.filter='')};
-let deck=[],pos=0,flipped=false;
+let deck=[],pos=0,flipped=false,fcKeep=false;
 function buildDeck(){const fc=+$('#fCat2').value;deck=S.map((s,i)=>i).filter(i=>fc<0||S[i][0]===fc);pos=0;flipped=false;drawFc()}
 function drawFc(){
   if(!deck.length){$('#fc').innerHTML='Không có thẻ';return}
   const i=deck[pos],s=S[i],m=$('#mode').value;$('#fcPos').textContent=`Thẻ ${pos+1}/${deck.length}${done[i]?' · ✅ đã thuộc':''}`;
   let front;
-  if(m==='vi')front=`<div class="big">${esc(s[3])}</div><div class="hint">Nói to câu tiếng Anh, rồi lật thẻ</div>`;
+  if(m==='vi')front=`<div class="big">${esc(s[3])}</div><div class="hint">Bấm 🎙 bên dưới, nói câu tiếng Anh, rồi lật thẻ</div>`;
   else if(m==='en')front=`<div class="big">${esc(s[1])}</div><div class="ipa">${s[2]}</div><div class="hint">Nghĩa là gì?</div>`;
   else front=`<div class="big">🎧</div><button class="btn pri" id="earPlay">🔊 Nghe câu</button><button class="btn" id="earSlow">🐢 Nghe chậm</button><div class="hint">Nghe và nói lại câu bạn nghe được</div>`;
   const back=`<div class="big">${esc(s[1])}</div><div class="ipa">${s[2]}</div><div>${esc(s[3])}</div><div class="kw" style="justify-content:center">${kwHtml(s[4])}</div>
   <div class="acts" style="justify-content:center"><button class="btn" id="bSay">🔊 Nghe</button><button class="btn" id="bSlow">🐢 Chậm</button></div>`;
   $('#fc').innerHTML=flipped?back:front;
+  if(!fcKeep){const l=$('#fcLive'),r=$('#fcResult');if(l)l.textContent='';if(r)r.innerHTML=''}fcKeep=false;
   const b1=$('#earPlay'),b2=$('#earSlow'),b3=$('#bSay'),b4=$('#bSlow');
   if(b1)b1.onclick=()=>say(s[1],0.9);if(b2)b2.onclick=()=>say(s[1],0.55);
   if(b3)b3.onclick=()=>say(s[1],0.9);if(b4)b4.onclick=()=>say(s[1],0.55);
@@ -413,20 +419,43 @@ $('#sPrev').onclick=()=>{cur=(cur-1+S.length)%S.length;showSent()};$('#sNext').o
 $('#sListen').onclick=()=>say(S[cur][1],0.9);$('#sSlow').onclick=()=>say(S[cur][1],0.55);
 $('#tClear').onclick=clearFree;
 function goSpeak(i){cur=i;showSent();setMode('read');document.querySelector('.tab[data-v=speak]').click();window.scrollTo(0,0)}
-function liveEl(){return mode==='read'?$('#sLive'):$('#tLive')}
-function recUI(on){recOn=on;[$('#sRec'),$('#tRec')].forEach(b=>{b.classList.toggle('rec',on&&b===activeBtn)});$('#sRec').textContent=recOn&&activeBtn===$('#sRec')?'⏹ Dừng & chấm':'🎙 Bấm để nói';$('#tRec').textContent=recOn&&activeBtn===$('#tRec')?'⏹ Dừng':'🎙 Bắt đầu nói'}
+function isFc(){return activeBtn&&activeBtn.id==='fcRec'}
+function liveEl(){return isFc()?$('#fcLive'):mode==='read'?$('#sLive'):$('#tLive')}
+function recUI(on){recOn=on;[$('#sRec'),$('#tRec'),$('#fcRec')].forEach(b=>{b.classList.toggle('rec',on&&b===activeBtn)});$('#fcRec').textContent=recOn&&activeBtn===$('#fcRec')?'⏹ Dừng & chấm':'🎙 Bấm để nói';$('#sRec').textContent=recOn&&activeBtn===$('#sRec')?'⏹ Dừng & chấm':'🎙 Bấm để nói';$('#tRec').textContent=recOn&&activeBtn===$('#tRec')?'⏹ Dừng':'🎙 Bắt đầu nói'}
 function startRec(btn){
   if(!D){toast('Trình duyệt này chưa hỗ trợ thu âm. Hãy mở bằng Chrome.');return}
   try{speechSynthesis.cancel()}catch(e){}
-  activeBtn=btn;if(mode==='read'){finalTxt='';partTxt=''}
+  activeBtn=btn;if(mode==='read'||isFc()){finalTxt='';partTxt=''}
   t0=Date.now();
   D.start().then(()=>{}).catch(err=>{recUI(false);const r=(err&&(err.code||err.message))||'';toast(/not_granted/.test(r)?'Anh chưa cho phép dùng micro. Bấm biểu tượng 🔒/micro trên thanh địa chỉ → Cho phép.':'Không bật được micro, thử lại nhé.')});
   recUI(true);liveEl().textContent='🎧 Đang nghe… nói đi anh';
 }
 async function stopRec(){recOn=false;try{await D.stop()}catch(e){}dur+=(Date.now()-t0)/1000;recUI(false);afterStop()}
 function afterStop(){
-  if(mode==='read')scoreRead();
+  if(isFc())scoreFc();
+  else if(mode==='read')scoreRead();
   else{$('#tLive').textContent=finalTxt||'(chưa nghe được gì)';$('#tGrade').disabled=!finalTxt.trim()}
+}
+$('#fcRec').onclick=()=>{if(recOn&&isFc())stopRec();else if(recOn)toast('Đang thu âm ở tab Chấm Speaking, bấm Dừng ở đó trước.');else if(!deck.length)return;else{dur=0;startRec($('#fcRec'))}};
+function scoreFc(){
+  const i=deck[pos],s=S[i],said=(finalTxt+' '+partTxt).trim();
+  $('#fcLive').textContent=said?'Máy nghe được: “'+said+'”':'';
+  if(!said){$('#fcResult').innerHTML='<div class="note">Máy chưa nghe được gì. Anh nói to, rõ hơn và để micro gần miệng.</div>';return}
+  const raw=s[1].split(/\s+/),tg=toks(s[1]),sp=toks(said),ok=align(tg,sp);
+  const hit=ok.filter(Boolean).length,extra=Math.max(0,sp.length-hit);
+  let p=Math.round(hit/tg.length*100-Math.min(15,extra*3));p=Math.max(0,Math.min(100,p));
+  let k=0,html='';const miss=[];
+  raw.forEach(w=>{const n=toks(w).length||1;const good=ok.slice(k,k+n).every(Boolean);if(!good)miss.push(w.replace(/[.,!?]/g,''));html+=`<span class="w ${good?'ok':'miss'}">${esc(w)}</span> `;k+=n});
+  if(best[i]==null||p>best[i]){best[i]=p;saveBest();setStat()}
+  const g=grade(p);
+  if(!flipped){flipped=true;fcKeep=true;drawFc()}
+  $('#fcResult').innerHTML=`<div class="score" style="justify-content:center;margin-top:10px"><div class="ring" style="background:${g[1]}">${p}</div><div><b>${g[0]}</b><br><span class="prog">Đúng ${hit}/${tg.length} từ${extra?` · thừa ${extra} từ`:''} · ${dur.toFixed(1)} giây · cao nhất: ${best[i]}</span></div></div>
+  <div style="margin-top:8px;line-height:2;text-align:center">${html}</div>
+  <div class="acts" style="justify-content:center">${miss.length?'<button class="btn" id="fcMiss">🔊 Nghe các từ màu đỏ</button>':''}<button class="btn" id="fcAgain">🔁 Nói lại</button>${p>=75?'<button class="btn pri" id="fcGood">✅ Đã thuộc, câu tiếp</button>':''}</div>`;
+  const bm=$('#fcMiss');if(bm)bm.onclick=()=>say(miss.join('. '),0.6);
+  $('#fcAgain').onclick=()=>$('#fcRec').click();
+  const bg=$('#fcGood');if(bg)bg.onclick=()=>$('#fcOk').click();
+  renderList();
 }
 $('#sRec').onclick=()=>{if(recOn)stopRec();else{dur=0;startRec($('#sRec'))}};
 $('#tRec').onclick=()=>{if(recOn)stopRec();else{if(!finalTxt)dur=0;startRec($('#tRec'))}};
