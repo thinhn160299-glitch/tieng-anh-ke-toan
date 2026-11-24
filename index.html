@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>50 câu tiếng Anh công sở cho kế toán (có chấm Speaking)</title>
+<title>50 câu tiếng Anh công sở cho kế toán</title>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Sans:wght@400&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f6f4ef;--card:#fff;--ink:#1f2a2e;--muted:#66727a;--line:#e3dfd6;--accent:#1d6b5c;--accent2:#e8f2ef;--warn:#b5651d;--warn2:#fbf0e4}
@@ -64,6 +64,13 @@ td.i{font-family:'Noto Sans',sans-serif;color:var(--muted)}
 .grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:10px}
 .grid4 div{background:var(--accent2);border-radius:10px;padding:8px;text-align:center}
 .grid4 b{display:block;font-size:1.3rem;color:var(--accent)}
+.formula{font-family:'Noto Sans',monospace;background:var(--accent2);border-left:4px solid var(--accent);padding:8px 12px;border-radius:6px;margin:10px 0;white-space:pre-wrap}
+.ex{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px dashed var(--line)}
+.ex .e{font-weight:600}.ex .v{color:var(--muted);font-size:.9rem}
+.err{margin-top:10px;font-size:.9rem;background:var(--warn2);border-radius:8px;padding:8px 12px}
+.q{margin-top:12px}.q .opts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.opt.right{background:#d6efe6;border-color:#1d8a5c;color:#145c49}.opt.wrong{background:#f8d7d3;border-color:#c0392b;color:#9b2c1f}
+.qx{font-size:.85rem;color:var(--muted);margin-top:4px}
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.85rem;display:none}
 </style>
 </head>
@@ -75,6 +82,8 @@ td.i{font-family:'Noto Sans',sans-serif;color:var(--muted)}
 <div class="tabs">
   <button class="tab on" data-v="learn">📘 Học câu</button>
   <button class="tab" data-v="flash">🃏 Thẻ lật / Luyện nói</button>
+  <button class="tab" data-v="gram">📐 Ngữ pháp A1–A2</button>
+  <button class="tab" data-v="px">✍️ Phản xạ Viết – Nói</button>
   <button class="tab" data-v="speak">🎙 Chấm Speaking</button>
   <button class="tab" data-v="vocab">📒 Từ vựng kế toán</button>
   <button class="tab" data-v="tips">🧭 Cách học</button>
@@ -127,9 +136,28 @@ td.i{font-family:'Noto Sans',sans-serif;color:var(--muted)}
   </div>
 </section>
 
+<!-- NGỮ PHÁP A1 -->
+<section class="view" id="v-gram">
+  <p class="sub">A1: 19 chủ điểm theo thứ tự lộ trình ForumFlash. A2: 16 chủ điểm theo chuẩn CEFR. Lời giải thích và ví dụ do Claude soạn theo tình huống công sở, kế toán.</p>
+  <div class="prog" id="gProg"></div>
+  <div class="meter"><i id="gBar"></i></div>
+  <div class="bar"><select id="gLv"><option value="A1">A1 – Căn bản (19 bài)</option><option value="A2">A2 – Sơ cấp (16 bài)</option></select><select id="gSel" style="max-width:100%"></select><button class="btn" id="gPrev">◀</button><button class="btn" id="gNext">Bài tiếp ▶</button></div>
+  <div id="gView"></div>
+</section>
+
+<!-- PHẢN XẠ -->
+<section class="view" id="v-px">
+  <p class="sub">Bộ câu phản xạ từ file Drive của anh (50 unit). Nhìn câu tiếng Việt, <b>viết hoặc nói</b> câu tiếng Anh, rồi bấm Chấm để Claude sửa và đưa câu mẫu tự nhiên.</p>
+  <div class="prog" id="pxProg"></div><div class="meter"><i id="pxBar"></i></div>
+  <div class="bar"><select id="pxU" style="max-width:100%"></select></div>
+  <div class="bar"><button class="btn" id="pxPrev">◀</button><select id="pxI"></select><button class="btn" id="pxNext">▶</button><button class="btn" id="pxRand">🔀 Câu ngẫu nhiên</button>
+    <label style="font-size:.85rem"><input type="checkbox" id="pxTimer"> ⏱ Phản xạ 10 giây</label></div>
+  <div class="card" id="pxCard"><div class="prog">Đang tải bộ câu…</div></div>
+</section>
+
 <!-- CHẤM SPEAKING -->
 <section class="view" id="v-speak">
-  <div id="micOff" class="note" style="display:none">Trình duyệt này không có chức năng nhận giọng nói. Anh mở file này bằng Google Chrome (máy có mạng) nhé.</div>
+  <div id="micOff" class="note" style="display:none">Chức năng thu âm chỉ chạy trên trình duyệt Chrome/Edge hoặc ứng dụng Claude desktop. Anh mở trang này bằng Chrome nhé.</div>
   <div class="bar">
     <button class="btn pri" id="mRead">📖 Đọc theo câu mẫu</button>
     <button class="btn" id="mFree">💬 Nói tự do theo tình huống</button>
@@ -166,14 +194,13 @@ td.i{font-family:'Noto Sans',sans-serif;color:var(--muted)}
   </div>
 
   <div class="card" style="font-size:.88rem;color:var(--muted)">
-    <b>Cách chấm:</b> giọng anh được chuyển thành chữ, rồi so với câu mẫu. Từ nào máy <b>nghe không ra</b> (màu đỏ) thường là từ anh phát âm chưa rõ, nhất là âm cuối và trọng âm. Máy chấm được độ rõ và độ chính xác, <b>chưa chấm được ngữ điệu</b>. Muốn nghe lại giọng mình, anh ghi âm thêm bằng điện thoại.<br>
-    <b>Bản file:</b> phần “🤖 Nhận xét chi tiết” và “🤖 Chấm điểm” (nói tự do) cần Claude nên chỉ chạy trên trang artifact; ở bản file, anh copy bài nói gửi Claude để chấm.
+    <b>Cách chấm:</b> giọng anh được chuyển thành chữ, rồi so với câu mẫu. Từ nào máy <b>nghe không ra</b> (màu đỏ) thường là từ anh phát âm chưa rõ, nhất là âm cuối và trọng âm. Máy chấm được độ rõ và độ chính xác, <b>chưa chấm được ngữ điệu</b>. Muốn nghe lại giọng mình, anh ghi âm thêm bằng điện thoại.
   </div>
 </section>
 
 <!-- TỪ VỰNG -->
 <section class="view" id="v-vocab">
-  <div class="bar"><input type="search" id="vq" placeholder="Tìm từ…"></div>
+  <div class="bar"><select id="vg"><option value="">Tất cả từ vựng</option><option value="a1">A1 – Văn phòng hằng ngày (40 từ)</option><option value="kt">Kế toán chuyên ngành (36 từ)</option></select><input type="search" id="vq" placeholder="Tìm từ…"></div>
   <table><thead><tr><th>Từ</th><th>Loại</th><th>Phiên âm</th><th>Nghĩa</th><th>Ví dụ</th><th></th></tr></thead><tbody id="vbody"></tbody></table>
 </section>
 
@@ -221,6 +248,7 @@ td.i{font-family:'Noto Sans',sans-serif;color:var(--muted)}
 
 <script>
 const C=["1. Giới thiệu bản thân","2. Giao tiếp văn phòng hằng ngày","3. Cuộc họp","4. Điện thoại & email","5. Hóa đơn, thanh toán, công nợ","6. Báo cáo, thuế, làm việc với sếp"];
+// [cat, en, ipa, vi, [[word,pos,ipa,meaning]], note]
 const S=[
 [0,"Hi, my name is Thinh. I'm an accountant.","/haɪ, maɪ neɪm ɪz tɪn. aɪm ən əˈkaʊntənt/","Xin chào, tôi tên là Thịnh. Tôi là kế toán viên.",[["accountant","n","/əˈkaʊntənt/","kế toán viên"]],"Trước nghề nghiệp phải có a/an: an accountant (vì bắt đầu bằng nguyên âm)."],
 [0,"I work in the accounting department.","/aɪ wɝːk ɪn ði əˈkaʊntɪŋ dɪˈpɑːrtmənt/","Tôi làm ở phòng kế toán.",[["accounting","n","/əˈkaʊntɪŋ/","công việc kế toán, ngành kế toán"],["department","n","/dɪˈpɑːrtmənt/","phòng, ban"]],"accountant = người làm kế toán; accounting = công việc / ngành kế toán."],
@@ -274,54 +302,99 @@ const S=[
 [5,"I made a mistake. I'll fix it right away.","/aɪ meɪd ə mɪˈsteɪk. aɪl fɪks ɪt raɪt əˈweɪ/","Tôi làm sai rồi. Tôi sửa ngay.",[["mistake","n","/mɪˈsteɪk/","lỗi, sai sót"],["right away","adv","/raɪt əˈweɪ/","ngay lập tức"]],"Nhận lỗi rõ ràng và đưa ra hành động sửa: rất được đánh giá cao ở công sở."]
 ];
 const V=[
-["accountant","n","/əˈkaʊntənt/","kế toán viên","She is a chief accountant.","Cô ấy là kế toán trưởng."],
-["invoice","n","/ˈɪnvɔɪs/","hóa đơn","Please send us the invoice.","Vui lòng gửi hóa đơn cho chúng tôi."],
-["e-invoice","n","/ˈiː ˌɪnvɔɪs/","hóa đơn điện tử","We issue e-invoices only.","Chúng tôi chỉ xuất hóa đơn điện tử."],
-["receipt","n","/rɪˈsiːt/","biên lai, phiếu thu","Keep the receipt.","Hãy giữ lại biên lai."],
-["revenue","n","/ˈrevənuː/","doanh thu","Revenue went up this quarter.","Doanh thu quý này tăng."],
-["expense","n","/ɪkˈspens/","chi phí, khoản chi","Office expenses are high.","Chi phí văn phòng đang cao."],
-["cost of goods sold","n","/kɔːst əv ɡʊdz soʊld/","giá vốn hàng bán","Cost of goods sold increased.","Giá vốn hàng bán đã tăng."],
-["profit","n","/ˈprɑːfɪt/","lợi nhuận, lãi","We made a profit.","Chúng tôi đã có lãi."],
-["loss","n","/lɔːs/","lỗ","The company had a loss.","Công ty bị lỗ."],
-["asset","n","/ˈæset/","tài sản","Cash is a current asset.","Tiền mặt là tài sản ngắn hạn."],
-["liability","n","/ˌlaɪəˈbɪləti/","nợ phải trả","Loans are liabilities.","Các khoản vay là nợ phải trả."],
-["equity","n","/ˈekwəti/","vốn chủ sở hữu","Owner's equity increased.","Vốn chủ sở hữu đã tăng."],
-["debit","n/v","/ˈdebɪt/","Nợ (bên Nợ), ghi Nợ","Debit inventory, credit payables.","Ghi Nợ hàng tồn kho, ghi Có phải trả người bán."],
-["credit","n/v","/ˈkredɪt/","Có (bên Có), ghi Có","Credit the cash account.","Ghi Có tài khoản tiền mặt."],
-["journal entry","n","/ˈdʒɝːnəl ˈentri/","bút toán","Post the journal entry.","Ghi sổ bút toán này."],
-["ledger","n","/ˈledʒɚ/","sổ cái","Check the general ledger.","Kiểm tra sổ cái."],
-["accounts receivable","n","/əˈkaʊnts rɪˈsiːvəbəl/","phải thu khách hàng","Accounts receivable are overdue.","Các khoản phải thu khách hàng đã quá hạn."],
-["accounts payable","n","/əˈkaʊnts ˈpeɪəbəl/","phải trả người bán","We pay accounts payable monthly.","Chúng tôi thanh toán công nợ phải trả hằng tháng."],
-["inventory","n","/ˈɪnvənˌtɔːri/","hàng tồn kho","Count the inventory.","Kiểm kê hàng tồn kho."],
-["supplier","n","/səˈplaɪɚ/","nhà cung cấp","Call the supplier.","Gọi cho nhà cung cấp."],
-["customer","n","/ˈkʌstəmɚ/","khách hàng","The customer paid in cash.","Khách hàng đã trả bằng tiền mặt."],
-["depreciation","n","/dɪˌpriːʃiˈeɪʃən/","khấu hao","Record monthly depreciation.","Ghi nhận khấu hao hằng tháng."],
-["payroll","n","/ˈpeɪroʊl/","bảng lương, tiền lương","Payroll is on the 5th.","Lương được trả vào ngày mùng 5."],
-["budget","n/v","/ˈbʌdʒɪt/","ngân sách; lập ngân sách","We are over budget.","Chúng tôi đang vượt ngân sách."],
-["cash flow","n","/kæʃ floʊ/","dòng tiền","Cash flow is tight.","Dòng tiền đang eo hẹp."],
-["bank statement","n","/bæŋk ˈsteɪtmənt/","sao kê ngân hàng","Download the bank statement.","Tải sao kê ngân hàng về."],
-["tax return","n","/tæks rɪˈtɝːn/","tờ khai thuế","File the tax return.","Nộp tờ khai thuế."],
-["tax authority","n","/tæks əˈθɔːrəti/","cơ quan thuế","The tax authority sent a notice.","Cơ quan thuế đã gửi một thông báo."],
-["reconcile","v","/ˈrekənsaɪl/","đối chiếu","Reconcile the bank account.","Đối chiếu tài khoản ngân hàng."],
-["audit","n/v","/ˈɔːdɪt/","kiểm toán","The audit starts on Monday.","Cuộc kiểm toán bắt đầu vào thứ Hai."],
-["approve","v","/əˈpruːv/","phê duyệt","The director approved it.","Giám đốc đã duyệt rồi."],
-["overdue","adj","/ˌoʊvɚˈduː/","quá hạn","This invoice is overdue.","Hóa đơn này đã quá hạn."],
-["deadline","n","/ˈdedlaɪn/","hạn chót","The deadline is the 20th.","Hạn chót là ngày 20."],
-["financial statements","n","/faɪˈnænʃəl ˈsteɪtmənts/","báo cáo tài chính","Prepare the financial statements.","Lập báo cáo tài chính."],
-["balance sheet","n","/ˈbæləns ʃiːt/","bảng cân đối kế toán","Check the balance sheet.","Kiểm tra bảng cân đối kế toán."],
-["income statement","n","/ˈɪnkʌm ˈsteɪtmənt/","báo cáo kết quả kinh doanh","Profit is on the income statement.","Lợi nhuận nằm trên báo cáo kết quả kinh doanh."]
+["accountant","n","/əˈkaʊntənt/","kế toán viên","She is a chief accountant."],
+["invoice","n","/ˈɪnvɔɪs/","hóa đơn","Please send us the invoice."],
+["e-invoice","n","/ˈiː ˌɪnvɔɪs/","hóa đơn điện tử","We issue e-invoices only."],
+["receipt","n","/rɪˈsiːt/","biên lai, phiếu thu","Keep the receipt."],
+["revenue","n","/ˈrevənuː/","doanh thu","Revenue went up this quarter."],
+["expense","n","/ɪkˈspens/","chi phí, khoản chi","Office expenses are high."],
+["cost of goods sold","n","/kɔːst əv ɡʊdz soʊld/","giá vốn hàng bán","Cost of goods sold increased."],
+["profit","n","/ˈprɑːfɪt/","lợi nhuận, lãi","We made a profit."],
+["loss","n","/lɔːs/","lỗ","The company had a loss."],
+["asset","n","/ˈæset/","tài sản","Cash is a current asset."],
+["liability","n","/ˌlaɪəˈbɪləti/","nợ phải trả","Loans are liabilities."],
+["equity","n","/ˈekwəti/","vốn chủ sở hữu","Owner's equity increased."],
+["debit","n/v","/ˈdebɪt/","Nợ (bên Nợ), ghi Nợ","Debit inventory, credit payables."],
+["credit","n/v","/ˈkredɪt/","Có (bên Có), ghi Có","Credit the cash account."],
+["journal entry","n","/ˈdʒɝːnəl ˈentri/","bút toán","Post the journal entry."],
+["ledger","n","/ˈledʒɚ/","sổ cái","Check the general ledger."],
+["accounts receivable","n","/əˈkaʊnts rɪˈsiːvəbəl/","phải thu khách hàng","Accounts receivable are overdue."],
+["accounts payable","n","/əˈkaʊnts ˈpeɪəbəl/","phải trả người bán","We pay accounts payable monthly."],
+["inventory","n","/ˈɪnvənˌtɔːri/","hàng tồn kho","Count the inventory."],
+["supplier","n","/səˈplaɪɚ/","nhà cung cấp","Call the supplier."],
+["customer","n","/ˈkʌstəmɚ/","khách hàng","The customer paid in cash."],
+["depreciation","n","/dɪˌpriːʃiˈeɪʃən/","khấu hao","Record monthly depreciation."],
+["payroll","n","/ˈpeɪroʊl/","bảng lương, tiền lương","Payroll is on the 5th."],
+["budget","n/v","/ˈbʌdʒɪt/","ngân sách; lập ngân sách","We are over budget."],
+["cash flow","n","/kæʃ floʊ/","dòng tiền","Cash flow is tight."],
+["bank statement","n","/bæŋk ˈsteɪtmənt/","sao kê ngân hàng","Download the bank statement."],
+["tax return","n","/tæks rɪˈtɝːn/","tờ khai thuế","File the tax return."],
+["tax authority","n","/tæks əˈθɔːrəti/","cơ quan thuế","The tax authority sent a notice."],
+["reconcile","v","/ˈrekənsaɪl/","đối chiếu","Reconcile the bank account."],
+["audit","n/v","/ˈɔːdɪt/","kiểm toán","The audit starts on Monday."],
+["approve","v","/əˈpruːv/","phê duyệt","The director approved it."],
+["overdue","adj","/ˌoʊvɚˈduː/","quá hạn","This invoice is overdue."],
+["deadline","n","/ˈdedlaɪn/","hạn chót","The deadline is the 20th."],
+["financial statements","n","/faɪˈnænʃəl ˈsteɪtmənts/","báo cáo tài chính","Prepare the financial statements."],
+["balance sheet","n","/ˈbæləns ʃiːt/","bảng cân đối kế toán","Check the balance sheet."],
+["income statement","n","/ˈɪnkʌm ˈsteɪtmənt/","báo cáo kết quả kinh doanh","Profit is on the income statement."]
 ];
+V.forEach(v=>v[5]='kt');
+[["colleague","n","/ˈkɑːliːɡ/","đồng nghiệp","My colleague helps me a lot."],
+["manager","n","/ˈmænɪdʒɚ/","quản lý, trưởng phòng","My manager is in a meeting."],
+["director","n","/dəˈrektɚ/","giám đốc","The director signed the contract."],
+["staff","n","/stæf/","nhân viên (tập thể)","We have 20 staff."],
+["employee","n","/ɪmˈplɔɪiː/","nhân viên","She is a new employee."],
+["company","n","/ˈkʌmpəni/","công ty","Our company sells rice."],
+["office","n","/ˈɑːfɪs/","văn phòng","I work in the office."],
+["desk","n","/desk/","bàn làm việc","The file is on my desk."],
+["computer","n","/kəmˈpjuːtɚ/","máy tính","My computer is slow."],
+["printer","n","/ˈprɪntɚ/","máy in","The printer is out of paper."],
+["document","n","/ˈdɑːkjəmənt/","tài liệu, chứng từ","Please sign this document."],
+["folder","n","/ˈfoʊldɚ/","bìa hồ sơ, thư mục","Put it in the blue folder."],
+["contract","n","/ˈkɑːntrækt/","hợp đồng","We signed a new contract."],
+["meeting room","n","/ˈmiːtɪŋ ruːm/","phòng họp","The meeting room is on the 2nd floor."],
+["salary","n","/ˈsæləri/","lương","Salary is paid on the 5th."],
+["money","n","/ˈmʌni/","tiền","We need more money."],
+["cash","n","/kæʃ/","tiền mặt","Do you pay in cash?"],
+["price","n","/praɪs/","giá","What is the price?"],
+["total","n/adj","/ˈtoʊtəl/","tổng cộng","The total is 5 million dong."],
+["number","n","/ˈnʌmbɚ/","số","What is the invoice number?"],
+["date","n","/deɪt/","ngày","Write the date here."],
+["week","n","/wiːk/","tuần","See you next week."],
+["month","n","/mʌnθ/","tháng","Revenue this month is good."],
+["year","n","/jɪr/","năm","Last year we grew 10%."],
+["morning","n","/ˈmɔːrnɪŋ/","buổi sáng","I check email in the morning."],
+["afternoon","n","/ˌæftɚˈnuːn/","buổi chiều","The meeting is this afternoon."],
+["work","v/n","/wɝːk/","làm việc; công việc","I work from 8 to 5."],
+["send","v","/send/","gửi","Please send me the file."],
+["receive","v","/rɪˈsiːv/","nhận","We received the goods."],
+["pay","v","/peɪ/","trả tiền","We pay suppliers monthly."],
+["buy","v","/baɪ/","mua","We buy goods from DE HEUS."],
+["sell","v","/sel/","bán","We sell to small shops."],
+["check","v","/tʃek/","kiểm tra","Please check the total."],
+["sign","v","/saɪn/","ký","Please sign here."],
+["print","v","/prɪnt/","in","Can you print this invoice?"],
+["call","v","/kɔːl/","gọi điện","I'll call you later."],
+["busy","adj","/ˈbɪzi/","bận","I'm busy right now."],
+["late","adj","/leɪt/","trễ","Sorry, I'm late."],
+["correct","adj","/kəˈrekt/","đúng","The figures are correct."],
+["wrong","adj","/rɔːŋ/","sai","The amount is wrong."]
+].forEach(r=>{r[5]='a1';V.push(r)});
+const EXVI={"accountant": "Cô ấy là kế toán trưởng.", "invoice": "Vui lòng gửi hóa đơn cho chúng tôi.", "e-invoice": "Chúng tôi chỉ xuất hóa đơn điện tử.", "receipt": "Hãy giữ lại biên lai.", "revenue": "Doanh thu quý này tăng.", "expense": "Chi phí văn phòng đang cao.", "cost of goods sold": "Giá vốn hàng bán đã tăng.", "profit": "Chúng tôi đã có lãi.", "loss": "Công ty bị lỗ.", "asset": "Tiền mặt là tài sản ngắn hạn.", "liability": "Các khoản vay là nợ phải trả.", "equity": "Vốn chủ sở hữu đã tăng.", "debit": "Ghi Nợ hàng tồn kho, ghi Có phải trả người bán.", "credit": "Ghi Có tài khoản tiền mặt.", "journal entry": "Ghi sổ bút toán này.", "ledger": "Kiểm tra sổ cái.", "accounts receivable": "Các khoản phải thu khách hàng đã quá hạn.", "accounts payable": "Chúng tôi thanh toán công nợ phải trả hằng tháng.", "inventory": "Kiểm kê hàng tồn kho.", "supplier": "Gọi cho nhà cung cấp.", "customer": "Khách hàng đã trả bằng tiền mặt.", "depreciation": "Ghi nhận khấu hao hằng tháng.", "payroll": "Lương được trả vào ngày mùng 5.", "budget": "Chúng tôi đang vượt ngân sách.", "cash flow": "Dòng tiền đang eo hẹp.", "bank statement": "Tải sao kê ngân hàng về.", "tax return": "Nộp tờ khai thuế.", "tax authority": "Cơ quan thuế đã gửi một thông báo.", "reconcile": "Đối chiếu tài khoản ngân hàng.", "audit": "Cuộc kiểm toán bắt đầu vào thứ Hai.", "approve": "Giám đốc đã duyệt rồi.", "overdue": "Hóa đơn này đã quá hạn.", "deadline": "Hạn chót là ngày 20.", "financial statements": "Lập báo cáo tài chính.", "balance sheet": "Kiểm tra bảng cân đối kế toán.", "income statement": "Lợi nhuận nằm trên báo cáo kết quả kinh doanh.", "colleague": "Đồng nghiệp giúp tôi rất nhiều.", "manager": "Sếp tôi đang họp.", "director": "Giám đốc đã ký hợp đồng.", "staff": "Chúng tôi có 20 nhân viên.", "employee": "Cô ấy là nhân viên mới.", "company": "Công ty chúng tôi bán gạo.", "office": "Tôi làm việc ở văn phòng.", "desk": "Hồ sơ ở trên bàn tôi.", "computer": "Máy tính của tôi chạy chậm.", "printer": "Máy in hết giấy rồi.", "document": "Vui lòng ký tài liệu này.", "folder": "Để nó vào bìa hồ sơ màu xanh.", "contract": "Chúng tôi đã ký một hợp đồng mới.", "meeting room": "Phòng họp ở tầng 2.", "salary": "Lương được trả vào ngày mùng 5.", "money": "Chúng tôi cần thêm tiền.", "cash": "Anh/chị trả bằng tiền mặt phải không?", "price": "Giá bao nhiêu?", "total": "Tổng cộng là 5 triệu đồng.", "number": "Số hóa đơn là bao nhiêu?", "date": "Ghi ngày vào đây.", "week": "Hẹn gặp lại tuần sau.", "month": "Doanh thu tháng này tốt.", "year": "Năm ngoái chúng tôi tăng trưởng 10%.", "morning": "Tôi kiểm tra email vào buổi sáng.", "afternoon": "Cuộc họp diễn ra chiều nay.", "work": "Tôi làm việc từ 8 giờ đến 5 giờ.", "send": "Vui lòng gửi file cho tôi.", "receive": "Chúng tôi đã nhận được hàng.", "pay": "Chúng tôi trả tiền nhà cung cấp hằng tháng.", "buy": "Chúng tôi mua hàng của DE HEUS.", "sell": "Chúng tôi bán cho các cửa hàng nhỏ.", "check": "Vui lòng kiểm tra lại tổng tiền.", "sign": "Vui lòng ký vào đây.", "print": "Anh/chị in giúp hóa đơn này được không?", "call": "Tôi sẽ gọi lại cho anh/chị sau.", "busy": "Bây giờ tôi đang bận.", "late": "Xin lỗi, tôi đến trễ.", "correct": "Các số liệu đều đúng.", "wrong": "Số tiền bị sai."};
+V.forEach(v=>{v[6]=EXVI[v[0]]||''});
 const $=s=>document.querySelector(s);
 let done={};try{done=JSON.parse(localStorage.getItem('ttdone')||'{}')}catch(e){}
 let best={};try{best=JSON.parse(localStorage.getItem('ttbest')||'{}')}catch(e){}
 const saveBest=()=>{try{localStorage.setItem('ttbest',JSON.stringify(best))}catch(e){}};
 const save=()=>{try{localStorage.setItem('ttdone',JSON.stringify(done))}catch(e){}};
-function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2600)}
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2200)}
 let voice=null;
 function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/en-US/i.test(v.lang)&&/Google|Samantha|Aria|Jenny|Natural/i.test(v.name))||vs.find(v=>/en-US/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}catch(e){}}
 try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
 function say(t,rate){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';if(voice)u.voice=voice;u.rate=rate||0.9;speechSynthesis.speak(u)}catch(e){toast('Trình duyệt này không hỗ trợ đọc. Hãy thử Chrome.')}}
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// filters
 const opts='<option value="-1">Tất cả chủ đề</option>'+C.map((c,i)=>`<option value="${i}">${c}</option>`).join('');
 $('#fCat').innerHTML=opts;$('#fCat2').innerHTML=opts;
 function kwHtml(k){return k.map(w=>`<span class="chip"><b>${esc(w[0])}</b><span class="pos">${w[1]}</span><span class="ipa">${w[2]}</span> ${esc(w[3])}</span>`).join('')}
@@ -351,6 +424,7 @@ $('#list').addEventListener('click',e=>{
 });
 $('#fCat').onchange=renderList;$('#fq').oninput=renderList;
 $('#toggleVi').onclick=()=>{const on=document.body.classList.toggle('hideVi');$('#toggleVi').textContent=on?'👁 Hiện nghĩa':'🙈 Che nghĩa';document.querySelectorAll('.vi,.kw').forEach(x=>x.style.filter='')};
+// flashcards
 let deck=[],pos=0,flipped=false,fcKeep=false;
 function buildDeck(){const fc=+$('#fCat2').value;deck=S.map((s,i)=>i).filter(i=>fc<0||S[i][0]===fc);pos=0;flipped=false;drawFc()}
 function drawFc(){
@@ -375,10 +449,196 @@ $('#fcShuf').onclick=()=>{for(let i=deck.length-1;i>0;i--){const j=Math.floor(Ma
 $('#fcOk').onclick=()=>{done[deck[pos]]=true;save();prog();$('#fcNext').click()};
 $('#fcHard').onclick=()=>{done[deck[pos]]=false;save();prog();toast('Thẻ sẽ quay lại sau');const i=deck.splice(pos,1)[0];deck.splice(Math.min(pos+3,deck.length),0,i);if(pos>=deck.length)pos=0;flipped=false;drawFc()};
 $('#mode').onchange=()=>{flipped=false;drawFc()};$('#fCat2').onchange=buildDeck;
-function renderV(){const q=$('#vq').value.trim().toLowerCase();$('#vbody').innerHTML=V.map((v,i)=>[v,i]).filter(([v])=>!q||(v[0]+v[3]).toLowerCase().includes(q)).map(([v,i])=>`<tr><td><b>${esc(v[0])}</b></td><td><span class="pos">${v[1]}</span></td><td class="i">${v[2]}</td><td>${esc(v[3])}</td><td><i>${esc(v[4])}</i>${v[5]?`<div style="color:var(--muted);font-size:.88em;margin-top:2px">${esc(v[5])}</div>`:''}</td><td><button class="btn" data-v="${i}">🔊</button></td></tr>`).join('')}
+// vocab
+function renderV(){const q=$('#vq').value.trim().toLowerCase();$('#vbody').innerHTML=V.map((v,i)=>[v,i]).filter(([v])=>(!$('#vg').value||v[5]===$('#vg').value)&&(!q||(v[0]+v[3]).toLowerCase().includes(q))).map(([v,i])=>`<tr><td><b>${esc(v[0])}</b></td><td><span class="pos">${v[1]}</span></td><td class="i">${v[2]}</td><td>${esc(v[3])}</td><td><i>${esc(v[4])}</i>${v[6]?`<div style="color:var(--muted);font-size:.88em;margin-top:2px">${esc(v[6])}</div>`:''}</td><td><button class="btn" data-v="${i}">🔊</button></td></tr>`).join('')}
 $('#vbody').addEventListener('click',e=>{const b=e.target.closest('button');if(b){const v=V[b.dataset.v];say(v[0]+'. '+v[4],0.8)}});
-$('#vq').oninput=renderV;
+$('#vq').oninput=renderV;$('#vg').onchange=renderV;
+// tabs
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+t.dataset.v));if(t.dataset.v==='flash')drawFc()});
+// ===== NGỮ PHÁP A1 =====
+// [tag, en, vi-title, giải thích, công thức, [[en,vi]...], lỗi hay gặp, [[câu hỏi,[đáp án],đúng,giải thích]...]]
+const G=[
+["Từ loại","To be & subject pronouns","Động từ to be & đại từ chủ ngữ","“Be” nghĩa là: là / thì / ở. Chia theo chủ ngữ: am, is hoặc are. Đại từ chủ ngữ đứng đầu câu: I, you, he, she, it, we, they.","I am (I'm)\nHe / She / It is (he's, she's, it's)\nWe / You / They are (we're, you're, they're)",
+[["I am an accountant.","Tôi là kế toán."],["She is my manager.","Cô ấy là quản lý của tôi."],["They are our suppliers.","Họ là nhà cung cấp của chúng ta."],["The invoice is on my desk.","Hóa đơn ở trên bàn tôi."]],
+"Người Việt hay bỏ “be”: ❌ I accountant. → ✅ I am an accountant. ❌ The report ready. → ✅ The report is ready.",
+[["My manager ___ busy today.",["am","is","are"],1,"Manager = he/she → is."],["We ___ in the accounting department.",["is","are","am"],1,"We → are."],["___ is my colleague, Lan.",["She","Her","Hers"],0,"Đứng đầu câu làm chủ ngữ → She."]]],
+["Từ loại","Object pronouns","Đại từ tân ngữ","Đứng SAU động từ hoặc giới từ (to, for, with…): me, you, him, her, it, us, them.","I → me · he → him · she → her · we → us · they → them · it → it · you → you",
+[["Please call me.","Vui lòng gọi cho tôi."],["I sent him the invoice.","Tôi đã gửi anh ấy hóa đơn."],["Can you help us?","Anh/chị giúp chúng tôi được không?"],["The supplier called. I'll call them back.","Nhà cung cấp gọi. Tôi sẽ gọi lại cho họ."]],
+"❌ Please send it to I. → ✅ Please send it to me. ❌ Call they. → ✅ Call them.",
+[["Please email ___ the report.",["I","me","my"],1,"Sau động từ email → me."],["The customers are waiting. Can you call ___?",["they","them","their"],1,"Sau call → them."],["This file is for Mr. Nam. Please give it to ___.",["he","him","his"],1,"Sau to → him."]]],
+["Từ loại","Nouns & plurals","Danh từ số ít, số nhiều","Danh từ đếm được có số nhiều. Thường thêm -s; thêm -es sau s, x, ch, sh; phụ âm + y → -ies. Một số từ bất quy tắc.","invoice → invoices · box → boxes · company → companies\nperson → people · man → men · woman → women",
+[["We received two invoices.","Chúng tôi nhận được hai hóa đơn."],["There are three boxes in the warehouse.","Có ba thùng hàng trong kho."],["We work with many companies.","Chúng tôi làm việc với nhiều công ty."],["Five people work in our department.","Năm người làm ở phòng tôi."]],
+"Tiếng Việt không có số nhiều nên hay quên -s: ❌ two invoice → ✅ two invoices. Nhớ bật âm cuối /s/, /z/, /ɪz/.",
+[["We received ten ___ today.",["invoice","invoices","invoicies"],1,"Số nhiều → invoices."],["There are 20 ___ in our company.",["persons","peoples","people"],2,"Số nhiều của person là people."],["We have two sister ___.",["companys","companies","companyes"],1,"Phụ âm + y → ies."]]],
+["Từ loại","Countable & uncountable nouns","Danh từ đếm được và không đếm được","Đếm được: có a/an và số nhiều (a receipt, two receipts). Không đếm được: KHÔNG có -s, KHÔNG dùng a/an: money, information, equipment, advice, furniture, work, software.","Đếm được: a customer / customers · many customers\nKhông đếm được: money · some information · much money",
+[["I need a receipt.","Tôi cần một biên lai."],["Could you give me some information?","Anh/chị cho tôi xin vài thông tin?"],["We don't have much money left in the budget.","Ngân sách không còn nhiều tiền."],["We bought new office equipment.","Chúng tôi đã mua thiết bị văn phòng mới."]],
+"❌ informations, ❌ an advice, ❌ equipments → ✅ information, a piece of advice, equipment.",
+[["Could you give me some ___?",["informations","information","an information"],1,"Information không đếm được."],["We need to buy new office ___.",["equipment","equipments","an equipment"],0,"Equipment không đếm được."],["How ___ customers called today?",["much","many"],1,"Customers đếm được → many."]]],
+["Từ loại","Possessives","Sở hữu","Tính từ sở hữu đứng trước danh từ: my, your, his, her, its, our, their. Sở hữu của người / công ty: thêm ’s.","my desk · our revenue · their invoice\nLan's report · the company's address · the suppliers' prices (số nhiều: s')",
+[["This is my desk.","Đây là bàn của tôi."],["Our revenue increased this month.","Doanh thu của chúng ta tăng trong tháng này."],["Lan's report is ready.","Báo cáo của Lan đã xong."],["What is the company's tax code?","Mã số thuế của công ty là gì?"]],
+"Hay nói theo kiểu tiếng Việt: ❌ the report of Lan → ✅ Lan's report. Nhầm his (của anh ấy) và her (của cô ấy).",
+[["Mr. Hùng forgot ___ laptop.",["her","his","its"],1,"Mr. → his."],["This is ___ office. We work here.",["our","us","we"],0,"Trước danh từ → our."],["Where is ___ invoice? (của nhà cung cấp)",["the supplier's","the suppliers","supplier"],0,"Sở hữu → the supplier's."]]],
+["Từ loại","This, that, these, those","Này, kia (số ít, số nhiều)","This / these: gần người nói. That / those: xa người nói. This, that đi với số ít; these, those đi với số nhiều.","Gần: this invoice · these invoices\nXa: that printer · those boxes",
+[["This invoice is wrong.","Hóa đơn này bị sai."],["That printer is broken.","Cái máy in kia bị hỏng."],["These receipts are from May.","Những biên lai này là của tháng Năm."],["Those boxes are for the customer.","Những thùng kia là của khách hàng."]],
+"❌ this documents → ✅ these documents. Phân biệt âm: this /ðɪs/ (i ngắn) và these /ðiːz/ (i dài).",
+[["___ documents here are for you.",["This","These","That"],1,"Gần + số nhiều → These."],["Look at ___ truck over there.",["this","that","these"],1,"Xa + số ít → that."],["___ is my business card.",["This","These"],0,"Số ít → This."]]],
+["Mạo từ","A, an & the","Mạo từ a, an, the","A / an: một (chưa xác định). An đứng trước ÂM nguyên âm (không phải chữ cái): an hour, a university. The: đã xác định, cả hai bên đều biết là cái nào.","a + âm phụ âm: a meeting, a VAT invoice (/viː/)\nan + âm nguyên âm: an accountant, an invoice, an hour\nthe: the meeting (cuộc họp đã nói tới)",
+[["I am an accountant.","Tôi là kế toán."],["We have a meeting at 9.","Chúng ta có một cuộc họp lúc 9 giờ."],["The meeting is in room 2.","Cuộc họp đó ở phòng 2."],["Please wait an hour.","Vui lòng chờ một tiếng."]],
+"Người Việt hay bỏ mạo từ trước nghề nghiệp: ❌ I am accountant → ✅ I am an accountant.",
+[["She is ___ accountant.",["a","an","the"],1,"Accountant bắt đầu bằng âm nguyên âm → an."],["Please wait ___ hour.",["a","an"],1,"Hour: h câm → an."],["I sent you an email. Did you read ___ email?",["a","an","the"],2,"Email đã nhắc tới → the."]]],
+["Lượng từ","Some, any, much & many","Một vài, bất kỳ, nhiều","Some: câu khẳng định và lời mời. Any: câu phủ định và câu hỏi. Many + danh từ đếm được số nhiều; much + danh từ không đếm được (thường dùng trong phủ định, câu hỏi).","some customers · any questions?\nmany invoices · much money / much time\nHow many …? · How much …?",
+[["We have some new customers.","Chúng ta có vài khách hàng mới."],["Do you have any questions?","Anh/chị có câu hỏi nào không?"],["We don't have much time.","Chúng ta không có nhiều thời gian."],["How many invoices did we issue?","Chúng ta đã xuất bao nhiêu hóa đơn?"]],
+"❌ How much invoices → ✅ How many invoices. ❌ We don't have some → ✅ We don't have any.",
+[["We don't have ___ stock left.",["some","any"],1,"Phủ định → any."],["How ___ money do we need?",["many","much"],1,"Money không đếm được → much."],["Would you like ___ coffee?",["some","any"],0,"Lời mời → some."]]],
+["Từ loại","Adjectives & adverbs","Tính từ và trạng từ","Tính từ bổ nghĩa cho danh từ, đứng TRƯỚC danh từ hoặc sau be. Trạng từ bổ nghĩa cho động từ, thường = tính từ + ly. Bất quy tắc: good → well, fast → fast, hard → hard.","an important document · The report is correct.\nShe works carefully. · He speaks English well.",
+[["She is a careful accountant.","Cô ấy là một kế toán cẩn thận."],["She checks the figures carefully.","Cô ấy kiểm tra số liệu cẩn thận."],["This is an important document.","Đây là tài liệu quan trọng."],["He speaks English well.","Anh ấy nói tiếng Anh giỏi."]],
+"Đặt tính từ sau danh từ như tiếng Việt: ❌ a document important → ✅ an important document. ❌ She works careful → ✅ carefully.",
+[["Please check the figures ___.",["careful","carefully"],1,"Bổ nghĩa cho động từ check → trạng từ."],["This is an ___ document.",["importantly","important"],1,"Trước danh từ → tính từ."],["He speaks English very ___.",["good","well"],1,"Trạng từ của good là well."]]],
+["Từ loại","Adverbs of frequency","Trạng từ chỉ tần suất","always (luôn luôn) > usually (thường xuyên) > often (hay) > sometimes (thỉnh thoảng) > rarely (hiếm khi) > never (không bao giờ). Đứng TRƯỚC động từ thường, đứng SAU be.","S + always/usually… + V: I always check invoices.\nS + be + always/usually…: She is never late.",
+[["I always check invoices twice.","Tôi luôn kiểm tra hóa đơn hai lần."],["We usually close the books on the 5th.","Chúng tôi thường khóa sổ vào ngày 5."],["The director sometimes works on Saturdays.","Giám đốc thỉnh thoảng làm việc thứ Bảy."],["She is never late.","Cô ấy không bao giờ đi trễ."]],
+"❌ I check always my email. → ✅ I always check my email. ❌ She usually is busy → ✅ She is usually busy.",
+[["Chọn câu đúng:",["I check always my email.","I always check my email.","Always I check my email."],1,"Trước động từ thường."],["He is ___ late. He is very punctual.",["always","never"],1,"Đúng giờ → never late."],["Chọn câu đúng:",["She usually is busy.","She is usually busy."],1,"Sau be."]]],
+["Giới từ","Prepositions of time & place","Giới từ chỉ thời gian và nơi chốn","AT: giờ, điểm cụ thể (at 9 a.m., at the office). ON: thứ, ngày (on Monday, on 30th June), bề mặt (on the desk). IN: tháng, năm, buổi (in May, in 2026, in the morning), bên trong (in the drawer, in the meeting room).","at 9 a.m. · at noon · at the reception\non Friday · on the 30th · on my desk\nin April · in 2026 · in the morning · in the warehouse",
+[["The meeting is at 9 a.m.","Cuộc họp lúc 9 giờ sáng."],["Payment is due on Friday.","Hạn thanh toán là thứ Sáu."],["We started using MISA in 2024.","Chúng tôi bắt đầu dùng MISA năm 2024."],["The contract is in the drawer.","Hợp đồng ở trong ngăn kéo."]],
+"❌ in Monday → ✅ on Monday. ❌ on 2026 → ✅ in 2026. ❌ at the morning → ✅ in the morning.",
+[["The meeting starts ___ 2 p.m.",["in","on","at"],2,"Giờ → at."],["The deadline is ___ Monday.",["in","on","at"],1,"Thứ → on."],["I started this job ___ 2023.",["in","on","at"],0,"Năm → in."]]],
+["Thì","Present simple","Thì hiện tại đơn","Dùng cho thói quen, việc lặp lại, sự thật, lịch cố định. He / She / It: động từ thêm -s / -es. Phủ định: don't / doesn't + V. Câu hỏi: Do / Does + S + V?","I / You / We / They + V: I work from 8 to 5.\nHe / She / It + V-s: She checks invoices.\nPhủ định: don't / doesn't + V · Hỏi: Do / Does … + V?",
+[["I work from 8 a.m. to 5 p.m.","Tôi làm từ 8 giờ sáng đến 5 giờ chiều."],["She checks the invoices every day.","Cô ấy kiểm tra hóa đơn mỗi ngày."],["Our company sells rice and animal feed.","Công ty chúng tôi bán gạo và thức ăn chăn nuôi."],["Does he use MISA?","Anh ấy có dùng MISA không?"]],
+"Quên -s ở ngôi thứ ba: ❌ She check → ✅ She checks (bật âm /s/). ❌ He doesn't checks → ✅ He doesn't check.",
+[["Our company ___ goods to many stores.",["sell","sells"],1,"Company = it → sells."],["My manager ___ like late reports.",["don't","doesn't"],1,"Manager = he/she → doesn't."],["___ you use Excel every day?",["Do","Does","Are"],0,"You + V thường → Do."]]],
+["Dạng thức động từ","Like, love & hate + V-ing","Like, love, hate + V-ing","Sau like, love, hate, enjoy, don't mind (không ngại), finish: động từ thêm -ing.","like / love / hate / enjoy / don't mind + V-ing",
+[["I like working with numbers.","Tôi thích làm việc với con số."],["She loves meeting new customers.","Cô ấy rất thích gặp khách hàng mới."],["I hate doing overtime.","Tôi ghét làm thêm giờ."],["I don't mind checking it again.","Tôi không ngại kiểm tra lại."]],
+"❌ I enjoy to work → ✅ I enjoy working. (like to work cũng được, nhưng enjoy / don't mind / finish chỉ đi với V-ing.)",
+[["I enjoy ___ with my team.",["work","working","to working"],1,"Enjoy + V-ing."],["He hates ___ late.",["being","be"],0,"Hate + V-ing."],["Do you like ___ reports?",["writing","write"],0,"Like + V-ing."]]],
+["Thì","Present continuous","Thì hiện tại tiếp diễn","am / is / are + V-ing: việc ĐANG xảy ra lúc nói, hoặc việc tạm thời trong giai đoạn này. Không dùng với các động từ chỉ trạng thái: know, want, need, like, understand.","S + am / is / are + V-ing\nI'm checking … · She is talking … · We are preparing …",
+[["I'm checking the invoice now.","Tôi đang kiểm tra hóa đơn."],["She is talking to a customer.","Cô ấy đang nói chuyện với khách."],["We are preparing the year-end report this week.","Tuần này chúng tôi đang làm báo cáo cuối năm."],["Sorry, he isn't working today.","Xin lỗi, hôm nay anh ấy không làm việc."]],
+"Thiếu be: ❌ I checking → ✅ I am checking. ❌ I am knowing → ✅ I know.",
+[["Please wait. I ___ on the phone.",["talk","am talking","talking"],1,"Đang xảy ra → am talking."],["Look! The truck ___ the goods now.",["delivers","is delivering"],1,"Now → hiện tại tiếp diễn."],["I ___ the answer.",["know","am knowing"],0,"Know không dùng tiếp diễn."]]],
+["Cấu trúc câu","Basic word order","Trật tự từ cơ bản","Câu tiếng Anh: Chủ ngữ + Động từ + Tân ngữ + Nơi chốn + Thời gian. Trạng từ thời gian (every day, today) thường ở CUỐI câu. Tính từ đứng trước danh từ.","S + V + O + (nơi chốn) + (thời gian)\nI send invoices to customers every Monday.",
+[["I send invoices to customers every Monday.","Tôi gửi hóa đơn cho khách hàng mỗi thứ Hai."],["We have a meeting in the office at 9.","Chúng ta họp ở văn phòng lúc 9 giờ."],["She prepares a monthly report.","Cô ấy làm báo cáo hằng tháng."],["The accountant checked the bank statement yesterday.","Kế toán đã kiểm tra sao kê hôm qua."]],
+"❌ I every day check email. → ✅ I check email every day. ❌ a report monthly → ✅ a monthly report.",
+[["Chọn câu đúng:",["I every Monday send reports.","I send reports every Monday.","Send I reports every Monday."],1,"S + V + O + thời gian."],["Chọn cụm đúng:",["a report monthly","a monthly report"],1,"Tính từ trước danh từ."],["Chọn câu đúng:",["We at 9 have a meeting.","We have a meeting at 9."],1,"Thời gian ở cuối câu."]]],
+["Cấu trúc câu","Negatives & questions","Câu phủ định và câu hỏi","Với be: thêm not (isn't, aren't); hỏi thì đảo be lên đầu. Với động từ thường: don't / doesn't + V; hỏi bằng Do / Does + S + V? Trả lời ngắn: Yes, it is. / No, I don't.","Be: The invoice isn't correct. · Is the report ready? – Yes, it is.\nV thường: We don't accept cash. · Does the price include VAT? – No, it doesn't.",
+[["The invoice isn't correct.","Hóa đơn không đúng."],["We don't accept cash.","Chúng tôi không nhận tiền mặt."],["Is the report ready? – Yes, it is.","Báo cáo xong chưa? – Rồi."],["Does the price include VAT? – No, it doesn't.","Giá đã gồm VAT chưa? – Chưa."]],
+"❌ The price not include VAT → ✅ The price doesn't include VAT. ❌ You are use MISA? → ✅ Do you use MISA?",
+[["The price ___ include VAT.",["don't","doesn't","isn't"],1,"Price = it + V thường → doesn't."],["___ the report ready?",["Do","Is","Does"],1,"Ready là tính từ → dùng be."],["Do you work on Saturdays? – No, I ___.",["don't","am not","doesn't"],0,"Do → don't."]]],
+["Cấu trúc câu","Wh- questions","Câu hỏi có từ để hỏi","What (cái gì), Where (ở đâu), When (khi nào), Who (ai), Why (tại sao), How (thế nào), How much (bao nhiêu tiền / lượng), How many (bao nhiêu cái), Which (cái nào).","Wh + be + S? → When is the deadline?\nWh + do / does + S + V? → When does the supplier deliver?",
+[["What is your job?","Anh/chị làm nghề gì?"],["When is the deadline?","Hạn chót là khi nào?"],["How much is the total?","Tổng cộng bao nhiêu tiền?"],["Why is the balance different?","Tại sao số dư bị lệch?"]],
+"❌ When the supplier deliver? → ✅ When does the supplier deliver? ❌ How many money → ✅ How much money.",
+[["___ is the total amount? – 15 million dong.",["How many","How much","What time"],1,"Số tiền → How much."],["___ is the meeting? – In room 3.",["When","Where","Who"],1,"Nơi chốn → Where."],["When ___ the supplier deliver?",["do","does","is"],1,"Supplier = it → does."]]],
+["Cấu trúc câu","There is / There are","Có (tồn tại)","There is + danh từ số ít hoặc không đếm được. There are + danh từ số nhiều. Hỏi: Is there…? / Are there…? Phủ định: There isn't / There aren't.","There is a mistake. · There is some money left.\nThere are 3 overdue invoices. · Are there any questions?",
+[["There is a mistake on the invoice.","Có một lỗi trên hóa đơn."],["There are three overdue invoices.","Có ba hóa đơn quá hạn."],["Is there any money left in the budget?","Ngân sách còn tiền không?"],["There aren't any receipts for this expense.","Khoản chi này không có biên lai nào."]],
+"Hay dùng “have” theo kiểu tiếng Việt: ❌ Have a mistake on the invoice. → ✅ There is a mistake on the invoice.",
+[["There ___ two problems with this report.",["is","are"],1,"Two problems số nhiều → are."],["There ___ some information missing.",["is","are"],0,"Information không đếm được → is."],["___ there any questions?",["Is","Are"],1,"Questions số nhiều → Are."]]],
+["Động từ khuyết thiếu","Can, could & imperatives","Can, could và câu mệnh lệnh","Can + động từ nguyên mẫu: có thể (khả năng, xin phép). Could: lịch sự hơn khi nhờ, hoặc quá khứ của can. Câu mệnh lệnh: bắt đầu bằng động từ nguyên mẫu; phủ định Don't + V; thêm please cho lịch sự.","S + can / could + V nguyên mẫu\nCould you + V …? (nhờ lịch sự)\nV … / Please V … / Don't + V …",
+[["I can use MISA and Excel.","Tôi biết dùng MISA và Excel."],["Can I leave early today?","Hôm nay tôi về sớm được không?"],["Could you send me the file?","Anh/chị gửi tôi tệp được không?"],["Please sign here. Don't forget the receipt.","Vui lòng ký ở đây. Đừng quên biên lai."]],
+"❌ I can to speak → ✅ I can speak. ❌ He cans → ✅ He can. ❌ Not forget → ✅ Don't forget.",
+[["She can ___ English well.",["speak","speaks","to speak"],0,"Can + V nguyên mẫu."],["___ you help me, please? (lịch sự nhất)",["Can","Could","Do"],1,"Could lịch sự hơn."],["___ forget to sign the document.",["Not","Don't","No"],1,"Mệnh lệnh phủ định → Don't."]]]
+];
+const G2=[
+["Thì","Past simple: was / were","Quá khứ của to be","Quá khứ của be: was (I, he, she, it) và were (you, we, they). Dùng cho trạng thái trong quá khứ: yesterday, last week, in 2025…","I / He / She / It was · You / We / They were\nPhủ định: wasn't / weren't · Hỏi: Was …? / Were …?",
+[["The meeting was very long yesterday.","Cuộc họp hôm qua rất dài."],["We were busy last month.","Tháng trước chúng tôi rất bận."],["The invoice wasn't correct.","Hóa đơn đó không đúng."],["Were you at the office on Saturday?","Thứ Bảy anh/chị có ở văn phòng không?"]],
+"Dùng is/are cho chuyện đã qua: ❌ Yesterday the report is late → ✅ Yesterday the report was late.",
+[["Revenue ___ high last quarter.",["is","was","were"],1,"Revenue = it, quá khứ → was."],["The goods ___ in the warehouse yesterday.",["was","were"],1,"Goods số nhiều → were."],["___ the director in the meeting?",["Was","Were","Did"],0,"Director = he/she → Was."]]],
+["Thì","Past simple: regular verbs","Quá khứ đơn: động từ có quy tắc","Việc đã xong trong quá khứ. Động từ có quy tắc thêm -ed. Cách đọc đuôi -ed: /t/ sau âm vô thanh (checked), /d/ sau âm hữu thanh (received), /ɪd/ sau t, d (submitted, recorded).","V + ed: check → checked · receive → received · pay → paid (bất quy tắc)\n-ed đọc /t/: checked, asked · /d/: received, called · /ɪd/: submitted, recorded",
+[["I checked the bank statement yesterday.","Hôm qua tôi đã kiểm tra sao kê."],["We received the goods on Monday.","Thứ Hai chúng tôi đã nhận hàng."],["She submitted the VAT return last week.","Tuần trước cô ấy đã nộp tờ khai VAT."],["The customer called this morning.","Sáng nay khách hàng đã gọi."]],
+"Người Việt hay nuốt đuôi -ed nên người nghe tưởng là hiện tại: nhớ bật rõ checked /tʃekt/, received /rɪˈsiːvd/.",
+[["We ___ the invoice last Friday.",["record","recorded","recording"],1,"Last Friday → quá khứ."],["Đuôi -ed trong “submitted” đọc là:",["/t/","/d/","/ɪd/"],2,"Sau t → /ɪd/."],["Đuôi -ed trong “checked” đọc là:",["/t/","/d/","/ɪd/"],0,"Sau âm vô thanh /k/ → /t/."]]],
+["Thì","Past simple: irregular verbs","Quá khứ đơn: động từ bất quy tắc","Nhiều động từ thông dụng không thêm -ed mà đổi dạng. Phải học thuộc. Đây là những từ hay dùng nhất ở văn phòng.","send → sent · pay → paid · buy → bought · sell → sold · make → made\ngo → went · have → had · get → got · write → wrote · give → gave · meet → met",
+[["I sent the invoice yesterday.","Hôm qua tôi đã gửi hóa đơn."],["The customer paid in full.","Khách hàng đã trả đủ."],["We bought 200 bags of feed last week.","Tuần trước chúng tôi mua 200 bao cám."],["I made a mistake in the report.","Tôi đã làm sai trong báo cáo."]],
+"❌ I sended / payed / buyed → ✅ sent / paid / bought.",
+[["The supplier ___ us a new price list.",["sended","sent","send"],1,"Send → sent."],["We ___ 500 bags last month.",["selled","sold","sell"],1,"Sell → sold."],["The customer ___ by bank transfer.",["payed","paid","pays"],1,"Pay → paid."]]],
+["Thì","Past simple: negatives & questions","Quá khứ đơn: phủ định và câu hỏi","Dùng did cho mọi ngôi. Sau did / didn't, động từ trở về NGUYÊN MẪU.","Phủ định: S + didn't + V: We didn't receive it.\nHỏi: Did + S + V? → Did you send it? – Yes, I did. / No, I didn't.\nWh: When did …? · Why did …?",
+[["We didn't receive the invoice.","Chúng tôi chưa nhận được hóa đơn."],["Did you send the payment?","Anh/chị đã chuyển tiền chưa?"],["When did the goods arrive?","Hàng đến lúc nào?"],["Why didn't he sign the contract?","Tại sao anh ấy không ký hợp đồng?"]],
+"Chia động từ hai lần: ❌ Did you sent …? → ✅ Did you send …? ❌ We didn't received → ✅ didn't receive.",
+[["Did the customer ___ yesterday?",["paid","pay","pays"],1,"Sau did → nguyên mẫu."],["We ___ the goods last week.",["didn't receive","didn't received","not received"],0,"didn't + V nguyên mẫu."],["When ___ you start this job?",["do","did","were"],1,"Quá khứ → did."]]],
+["Thì","Past continuous","Quá khứ tiếp diễn","was / were + V-ing: việc ĐANG diễn ra tại một thời điểm trong quá khứ, hoặc đang làm thì có việc khác xen vào (when + quá khứ đơn).","S + was / were + V-ing\nI was checking the invoices when the director called.",
+[["I was checking invoices at 3 p.m. yesterday.","3 giờ chiều hôm qua tôi đang kiểm tra hóa đơn."],["We were having a meeting when the auditors arrived.","Chúng tôi đang họp thì kiểm toán đến."],["She was talking to a customer, so she didn't answer.","Cô ấy đang nói chuyện với khách nên không nghe máy."],["What were you doing at 9 a.m.?","9 giờ sáng anh/chị đang làm gì?"]],
+"Việc dài dùng tiếp diễn, việc xen vào dùng quá khứ đơn: ❌ When I checked, the phone was ringing (nghĩa khác).",
+[["I ___ the report when my manager called.",["wrote","was writing","am writing"],1,"Đang làm thì có việc xen vào."],["They ___ lunch at 12 yesterday.",["were having","was having","have"],0,"They → were."],["The system crashed while we ___ the data.",["entered","were entering"],1,"While + tiếp diễn."]]],
+["Thì","Future: will","Tương lai với will","Will + V nguyên mẫu: quyết định ngay lúc nói, lời hứa, đề nghị giúp, dự đoán. Rút gọn: I'll, we'll. Phủ định: won't.","S + will ('ll) + V · S + won't + V · Will + S + V?",
+[["I'll send it to you right now.","Tôi sẽ gửi ngay cho anh/chị."],["We will pay the invoice on Friday.","Chúng tôi sẽ thanh toán hóa đơn vào thứ Sáu."],["Don't worry, I won't forget.","Đừng lo, tôi sẽ không quên."],["Will the price increase next year?","Năm sau giá có tăng không?"]],
+"❌ I will to send → ✅ I will send. ❌ I will sending → ✅ I will send. Đọc rõ âm /l/ trong I'll /aɪl/.",
+[["The phone is ringing. I ___ answer it.",["will","am going to","answer"],0,"Quyết định ngay lúc nói → will."],["We ___ late. I promise.",["won't be","will not to be","don't be"],0,"won't + V."],["___ you help me with this report?",["Will","Do","Are"],0,"Lời nhờ → Will you…?"]]],
+["Thì","Future: be going to","Tương lai với be going to","Am / is / are going to + V: kế hoạch, dự định ĐÃ quyết từ trước; hoặc dự đoán có dấu hiệu rõ ràng.","S + am / is / are going to + V\nWe are going to hire a new accountant.",
+[["We are going to open a new store in March.","Tháng Ba chúng tôi sẽ mở thêm cửa hàng."],["I'm going to close the books this weekend.","Cuối tuần này tôi sẽ khóa sổ."],["Look at the cash flow. We're going to need a loan.","Nhìn dòng tiền kìa, chúng ta sẽ cần vay."],["Are you going to attend the training?","Anh/chị có định đi tập huấn không?"]],
+"Phân biệt: kế hoạch có trước dùng going to, quyết định tức thời dùng will. ❌ I going to → ✅ I'm going to.",
+[["We ___ buy a new printer next month. (đã lên kế hoạch)",["will","are going to"],1,"Kế hoạch có trước."],["She ___ going to visit the customer tomorrow.",["is","are","does"],0,"She → is."],["Chọn câu đúng:",["I going to call him.","I'm going to call him.","I'm going call him."],1,"am + going to + V."]]],
+["Thì","Present continuous for future","Hiện tại tiếp diễn chỉ lịch hẹn","Lịch hẹn đã chốt (giờ, nơi, người): dùng am / is / are + V-ing kèm thời gian tương lai.","I'm meeting the supplier tomorrow at 10.\nWhat are you doing on Friday?",
+[["I'm meeting the auditors tomorrow morning.","Sáng mai tôi gặp kiểm toán."],["We're visiting the warehouse on Monday.","Thứ Hai chúng tôi đi kho."],["The director is flying to Hanoi next week.","Tuần sau giám đốc bay ra Hà Nội."],["Are you coming to the meeting this afternoon?","Chiều nay anh/chị có đến họp không?"]],
+"Phải có mốc thời gian tương lai để không bị hiểu là “đang làm bây giờ”.",
+[["I ___ the customer at 2 p.m. tomorrow.",["meet","am meeting","met"],1,"Lịch hẹn → hiện tại tiếp diễn."],["What ___ you doing this weekend?",["are","do","will"],0,"are + V-ing."],["She ___ to Da Nang next Monday.",["is flying","flies yesterday","flew"],0,"Lịch đã chốt."]]],
+["So sánh","Comparatives","So sánh hơn","Tính từ ngắn: thêm -er + than. Tính từ dài (2 âm tiết trở lên, trừ đuôi -y): more + adj + than. Bất quy tắc: good → better, bad → worse.","cheap → cheaper than · busy → busier than\nexpensive → more expensive than · good → better · bad → worse",
+[["This supplier is cheaper than the old one.","Nhà cung cấp này rẻ hơn nhà cũ."],["Revenue this month is higher than last month.","Doanh thu tháng này cao hơn tháng trước."],["The new software is more expensive.","Phần mềm mới đắt hơn."],["Sales are worse than we expected.","Doanh số tệ hơn chúng ta dự kiến."]],
+"❌ more cheaper → ✅ cheaper. ❌ more good → ✅ better. ❌ higher than last month is → ✅ higher than last month.",
+[["This month's costs are ___ than last month's.",["high","higher","more high"],1,"Ngắn → -er."],["MISA is ___ than our old software.",["more useful","usefuller"],0,"Dài → more."],["The results are ___ than last year.",["gooder","better","more good"],1,"good → better."]]],
+["So sánh","Superlatives","So sánh nhất","Tính từ ngắn: the + adj-est. Tính từ dài: the most + adj. Bất quy tắc: the best, the worst.","the cheapest · the busiest · the most important · the best · the worst",
+[["December is our busiest month.","Tháng Mười Hai là tháng bận nhất của chúng tôi."],["This is the most important report of the year.","Đây là báo cáo quan trọng nhất trong năm."],["They are our biggest customer.","Họ là khách hàng lớn nhất của chúng tôi."],["What is the best way to reduce costs?","Cách tốt nhất để giảm chi phí là gì?"]],
+"Thiếu “the”: ❌ He is best accountant → ✅ He is the best accountant.",
+[["This is ___ product in our store.",["the cheapest","cheapest","the most cheap"],0,"the + -est."],["Tax season is ___ time for accountants.",["the most busy","the busiest"],1,"busy → the busiest."],["She is ___ employee in the department.",["the best","the most good","best"],0,"good → the best."]]],
+["Động từ khuyết thiếu","Have to & must","Phải (bắt buộc)","Have to / has to + V: bắt buộc do quy định, hoàn cảnh bên ngoài. Must + V: bắt buộc mạnh, thường trong văn bản, quy định. Don't have to: KHÔNG cần (không bắt buộc). Mustn't: KHÔNG ĐƯỢC (cấm).","I have to … · She has to … · We must …\ndon't have to = không cần · mustn't = không được",
+[["We have to file the VAT return by the 30th.","Chúng ta phải nộp tờ khai VAT trước ngày 30."],["She has to work late tonight.","Tối nay cô ấy phải làm muộn."],["All payments must have a signed request.","Mọi khoản chi phải có đề nghị đã ký."],["You don't have to print it. Just email it.","Không cần in đâu, gửi email là được."]],
+"Nhầm nghĩa: don't have to (không cần) khác hẳn mustn't (cấm). ❌ She have to → ✅ She has to.",
+[["My manager ___ approve this payment.",["have to","has to","must to"],1,"Manager = he/she → has to."],["You ___ come in on Saturday. It's optional.",["mustn't","don't have to"],1,"Không bắt buộc → don't have to."],["You ___ share the bank password with anyone.",["mustn't","don't have to"],0,"Cấm → mustn't."]]],
+["Động từ khuyết thiếu","Should","Nên","Should + V nguyên mẫu: lời khuyên, đề xuất. Shouldn't: không nên. Hỏi ý kiến: Should I …?","S + should / shouldn't + V\nShould I … ? · I think we should …",
+[["You should check the figures again.","Anh/chị nên kiểm tra lại số liệu."],["We should reduce costs next quarter.","Quý sau chúng ta nên giảm chi phí."],["You shouldn't pay before you receive the invoice.","Không nên thanh toán trước khi nhận hóa đơn."],["Should I call the supplier now?","Tôi có nên gọi nhà cung cấp bây giờ không?"]],
+"❌ You should to check → ✅ You should check. ❌ He shoulds → ✅ He should.",
+[["You ___ ask the chief accountant first.",["should","should to","shoulds"],0,"should + V."],["We ___ pay before checking the goods.",["should","shouldn't"],1,"Lời khuyên không nên."],["___ I send the report today?",["Should","Do","Am"],0,"Hỏi ý kiến → Should I…?"]]],
+["Thì","Present perfect (intro)","Hiện tại hoàn thành (cơ bản)","have / has + V3 (quá khứ phân từ): việc đã xảy ra nhưng không nói rõ lúc nào, hoặc còn liên quan đến hiện tại. Hay đi với: just (vừa mới), already (đã rồi), yet (chưa, dùng trong phủ định và câu hỏi), ever, never.","S + have / has + V3\nI have just sent it. · She has already paid. · Have you finished yet? – Not yet.",
+[["I have just sent the invoice.","Tôi vừa gửi hóa đơn."],["The customer has already paid.","Khách hàng đã thanh toán rồi."],["We haven't received the goods yet.","Chúng tôi vẫn chưa nhận được hàng."],["Have you ever used MISA AMIS?","Anh/chị đã từng dùng MISA AMIS chưa?"]],
+"Dùng với thời điểm cụ thể là sai: ❌ I have sent it yesterday → ✅ I sent it yesterday.",
+[["She ___ already finished the report.",["have","has","is"],1,"She → has."],["We haven't received the payment ___.",["already","yet","just"],1,"Phủ định → yet."],["I ___ the invoice yesterday.",["have sent","sent"],1,"Yesterday → quá khứ đơn."]]],
+["Lượng từ","Too, enough, a few & a little","Quá, đủ, một vài, một chút","too + adj: quá (tiêu cực). adj + enough / enough + noun: đủ. a few + danh từ đếm được (một vài); a little + danh từ không đếm được (một chút).","too expensive · cheap enough · enough money\na few invoices · a little time",
+[["This price is too high.","Giá này cao quá."],["We don't have enough money this month.","Tháng này chúng ta không đủ tiền."],["Is the report clear enough?","Báo cáo đã đủ rõ chưa?"],["I need a few minutes and a little help.","Tôi cần vài phút và một chút giúp đỡ."]],
+"❌ enough cheap → ✅ cheap enough (tính từ đứng trước enough). ❌ a few money → ✅ a little money.",
+[["We can't buy it. It's ___ expensive.",["too","enough"],0,"Quá → too."],["Is the room big ___ for 20 people?",["enough","too"],0,"adj + enough."],["I have ___ questions about the contract.",["a little","a few"],1,"Questions đếm được → a few."]]],
+["Dạng thức động từ","Verb + to-infinitive","Động từ + to V","Sau want, need, plan, decide, hope, try, forget, agree, would like: dùng to + V nguyên mẫu.","want / need / plan / decide / hope / forget / would like + to + V",
+[["I need to check the bank statement.","Tôi cần kiểm tra sao kê."],["We plan to hire a new accountant.","Chúng tôi dự định tuyển thêm kế toán."],["I forgot to attach the file.","Tôi quên đính kèm tệp."],["I would like to ask about the invoice.","Tôi muốn hỏi về hóa đơn."]],
+"❌ I need check → ✅ I need to check. ❌ I want going → ✅ I want to go. (Khác với enjoy / like + V-ing ở bài A1.)",
+[["I need ___ the supplier today.",["call","to call","calling"],1,"need + to V."],["She forgot ___ the receipt.",["to bring","bring"],0,"forget + to V (quên làm)."],["We decided ___ the price.",["increase","to increase","increasing"],1,"decide + to V."]]],
+["Cấu trúc câu","And, but, so & because","Liên từ: và, nhưng, nên, vì","and (và), but (nhưng), so (nên, vì vậy – chỉ kết quả), because (vì – chỉ lý do). Giúp nói câu dài, tự nhiên hơn.","A and B · A but B · A, so B (kết quả) · A because B (lý do)",
+[["I checked the invoice and sent it to my manager.","Tôi kiểm tra hóa đơn rồi gửi cho quản lý."],["The price is good, but the delivery is slow.","Giá tốt nhưng giao hàng chậm."],["The payment is overdue, so I called the customer.","Khoản thanh toán quá hạn nên tôi đã gọi khách."],["I'm late because the traffic was bad.","Tôi đến muộn vì kẹt xe."]],
+"Dùng cả hai như tiếng Việt “vì… nên…”: ❌ Because it was late, so I called. → ✅ Because it was late, I called. / It was late, so I called.",
+[["The goods arrived late, ___ we couldn't sell them.",["because","so","but"],1,"Kết quả → so."],["We changed suppliers ___ their prices were too high.",["because","so"],0,"Lý do → because."],["The report is long, ___ it is very clear.",["and","but","so"],1,"Ý trái ngược → but."]]]
+];
+const LV={A1:G,A2:G2};let gLv='A1';
+let gDone={};try{gDone=JSON.parse(localStorage.getItem('ttgram')||'{}')}catch(e){}
+Object.keys(gDone).forEach(k=>{if(/^\d+$/.test(k)){gDone['A1:'+k]=gDone[k];delete gDone[k]}});
+const saveG=()=>{try{localStorage.setItem('ttgram',JSON.stringify(gDone))}catch(e){}};
+let gCur=0;
+const GL=()=>LV[gLv],gk=i=>gLv+':'+i;
+function fillG(){$('#gSel').innerHTML=GL().map((g,i)=>`<option value="${i}">${String(i+1).padStart(2,'0')}. ${g[1]} – ${g[2]}</option>`).join('')}
+function gProg(){const n=Object.keys(gDone).filter(k=>k.startsWith(gLv+':')).length,t=GL().length;$('#gProg').textContent=`Đã hoàn thành ${n}/${t} bài ${gLv}`;$('#gBar').style.width=(n/t*100)+'%'}
+fillG();
+function renderG(){
+  const g=GL()[gCur];$('#gSel').value=gCur;const key=gk(gCur);
+  $('#gView').innerHTML=`<div class="card"><span class="chip">${g[0]}</span>
+  <h2 style="margin:8px 0 2px">${String(gCur+1).padStart(2,'0')}. ${esc(g[1])}</h2><div class="prog">${esc(g[2])}${gDone[key]!=null?` · ✅ đã làm: ${gDone[key]}/3`:''}</div>
+  <p>${esc(g[3])}</p><div class="formula">${esc(g[4])}</div>
+  <h4 style="margin:14px 0 4px">Ví dụ công sở</h4>
+  ${g[5].map((e,k)=>`<div class="ex"><button class="btn" data-gs="${k}">🔊</button><div><div class="e">${esc(e[0])}</div><div class="v">${esc(e[1])}</div></div></div>`).join('')}
+  <div class="err">⚠️ <b>Lỗi người Việt hay gặp:</b> ${esc(g[6])}</div>
+  <h4 style="margin:16px 0 4px">Bài tập nhanh</h4>
+  ${g[7].map((q,k)=>`<div class="q" data-q="${k}"><b>${k+1}.</b> ${esc(q[0])}<div class="opts">${q[1].map((o,j)=>`<button class="btn opt" data-o="${j}">${esc(o)}</button>`).join('')}</div><div class="qx"></div></div>`).join('')}
+  <div class="acts" style="margin-top:14px"><button class="btn" id="gSayAll">🔊 Nghe tất cả ví dụ</button><button class="btn pri" id="gNext2">Bài tiếp ▶</button></div>
+  <div id="gScore"></div></div>`;
+  const ans={};
+  $('#gView').querySelectorAll('[data-gs]').forEach(b=>b.onclick=()=>say(g[5][+b.dataset.gs][0],0.85));
+  $('#gSayAll').onclick=()=>say(g[5].map(e=>e[0]).join(' '),0.85);
+  $('#gNext2').onclick=()=>$('#gNext').click();
+  $('#gView').querySelectorAll('.q').forEach(qe=>{const k=+qe.dataset.q,q=g[7][k];qe.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    if(ans[k]!=null)return;const j=+b.dataset.o;ans[k]=j===q[2];
+    b.classList.add(j===q[2]?'right':'wrong');qe.querySelectorAll('.opt')[q[2]].classList.add('right');
+    qe.querySelector('.qx').textContent=(j===q[2]?'✅ Đúng. ':'❌ Chưa đúng. ')+q[3];
+    if(Object.keys(ans).length===g[7].length){const sc=Object.values(ans).filter(Boolean).length;gDone[key]=Math.max(sc,gDone[key]||0);saveG();gProg();
+      $('#gScore').innerHTML=`<div class="note">Kết quả: ${sc}/3. ${sc===3?'Rất tốt! Sang bài tiếp theo.':'Đọc lại phần lỗi hay gặp rồi làm lại bài này nhé.'} <button class="btn" id="gRetry">↻ Làm lại</button></div>`;$('#gRetry').onclick=renderG}
+  })});
+}
+$('#gSel').onchange=()=>{gCur=+$('#gSel').value;renderG()};
+$('#gPrev').onclick=()=>{gCur=(gCur-1+GL().length)%GL().length;renderG();window.scrollTo(0,0)};
+$('#gNext').onclick=()=>{gCur=(gCur+1)%GL().length;renderG();window.scrollTo(0,0)};
+$('#gLv').onchange=()=>{gLv=$('#gLv').value;gCur=0;fillG();renderG();gProg()};
+renderG();gProg();
 // ===== SPEAKING =====
 const T=[
 ["Introduce yourself and your job.","Giới thiệu bản thân và công việc của anh.","Gợi ý: tên, phòng ban, đã làm bao lâu, phụ trách việc gì (hóa đơn, thuế, công nợ…)."],
@@ -398,7 +658,7 @@ function toks(s){
   a.forEach(w=>{w=w.replace(/^'+|'+$/g,'');if(CON[w])o.push(...CON[w].split(' '));else o.push(NUM[w]||w)});
   return o;
 }
-function align(tg,sp){
+function align(tg,sp){ // LCS
   const n=tg.length,m=sp.length,L=Array.from({length:n+1},()=>new Array(m+1).fill(0));
   for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)L[i][j]=tg[i]===sp[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
   const ok=new Array(n).fill(false);let i=0,j=0;
@@ -419,24 +679,24 @@ $('#sPrev').onclick=()=>{cur=(cur-1+S.length)%S.length;showSent()};$('#sNext').o
 $('#sListen').onclick=()=>say(S[cur][1],0.9);$('#sSlow').onclick=()=>say(S[cur][1],0.55);
 $('#tClear').onclick=clearFree;
 function goSpeak(i){cur=i;showSent();setMode('read');document.querySelector('.tab[data-v=speak]').click();window.scrollTo(0,0)}
-function isFc(){return activeBtn&&activeBtn.id==='fcRec'}
-function liveEl(){return isFc()?$('#fcLive'):mode==='read'?$('#sLive'):$('#tLive')}
-function recUI(on){recOn=on;[$('#sRec'),$('#tRec'),$('#fcRec')].forEach(b=>{b.classList.toggle('rec',on&&b===activeBtn)});$('#fcRec').textContent=recOn&&activeBtn===$('#fcRec')?'⏹ Dừng & chấm':'🎙 Bấm để nói';$('#sRec').textContent=recOn&&activeBtn===$('#sRec')?'⏹ Dừng & chấm':'🎙 Bấm để nói';$('#tRec').textContent=recOn&&activeBtn===$('#tRec')?'⏹ Dừng':'🎙 Bắt đầu nói'}
+function liveEl(){return mode==='fc'?$('#fcLive'):mode==='read'?$('#sLive'):mode==='px'?$('#pxLive'):$('#tLive')}
+function recUI(on){recOn=on;[$('#sRec'),$('#tRec'),$('#pxRec'),$('#fcRec')].forEach(b=>{if(b)b.classList.toggle('rec',on&&b===activeBtn)});$('#fcRec').textContent=recOn&&activeBtn===$('#fcRec')?'⏹ Dừng & chấm':'🎙 Bấm để nói';const pr=$('#pxRec');if(pr)pr.textContent=recOn&&activeBtn===pr?'⏹ Dừng':'🎙 Nói';$('#sRec').textContent=recOn&&activeBtn===$('#sRec')?'⏹ Dừng & chấm':'🎙 Bấm để nói';$('#tRec').textContent=recOn&&activeBtn===$('#tRec')?'⏹ Dừng':'🎙 Bắt đầu nói'}
 function startRec(btn){
   if(!D){toast('Trình duyệt này chưa hỗ trợ thu âm. Hãy mở bằng Chrome.');return}
   try{speechSynthesis.cancel()}catch(e){}
-  activeBtn=btn;if(mode==='read'||isFc()){finalTxt='';partTxt=''}
+  activeBtn=btn;if(mode==='read'||mode==='px'||mode==='fc'){finalTxt='';partTxt=''}
   t0=Date.now();
-  D.start().then(()=>{}).catch(err=>{recUI(false);const r=(err&&(err.code||err.message))||'';toast(/not_granted/.test(r)?'Anh chưa cho phép dùng micro. Bấm biểu tượng 🔒/micro trên thanh địa chỉ → Cho phép.':'Không bật được micro, thử lại nhé.')});
+  D.start().then(()=>{}).catch(err=>{recUI(false);const r=(err&&(err.code||err.message))||'';toast(/not_granted/.test(r)?'Anh chưa cho phép dùng micro.':'Không bật được micro, thử lại nhé.')});
   recUI(true);liveEl().textContent='🎧 Đang nghe… nói đi anh';
 }
 async function stopRec(){recOn=false;try{await D.stop()}catch(e){}dur+=(Date.now()-t0)/1000;recUI(false);afterStop()}
 function afterStop(){
-  if(isFc())scoreFc();
-  else if(mode==='read')scoreRead();
+  if(mode==='fc'){scoreFc();return}
+  if(mode==='px'){const t=(finalTxt+' '+partTxt).trim();if(t)$('#pxIn').value=t;$('#pxLive').textContent='';return}
+  if(mode==='read')scoreRead();
   else{$('#tLive').textContent=finalTxt||'(chưa nghe được gì)';$('#tGrade').disabled=!finalTxt.trim()}
 }
-$('#fcRec').onclick=()=>{if(recOn&&isFc())stopRec();else if(recOn)toast('Đang thu âm ở tab Chấm Speaking, bấm Dừng ở đó trước.');else if(!deck.length)return;else{dur=0;startRec($('#fcRec'))}};
+$('#fcRec').onclick=()=>{if(recOn){if(mode==='fc')stopRec();else toast('Đang thu âm ở tab khác, bấm Dừng ở đó trước.');return}if(!deck.length)return;mode='fc';dur=0;startRec($('#fcRec'))};
 function scoreFc(){
   const i=deck[pos],s=S[i],said=(finalTxt+' '+partTxt).trim();
   $('#fcLive').textContent=said?'Máy nghe được: “'+said+'”':'';
@@ -457,8 +717,8 @@ function scoreFc(){
   const bg=$('#fcGood');if(bg)bg.onclick=()=>$('#fcOk').click();
   renderList();
 }
-$('#sRec').onclick=()=>{if(recOn)stopRec();else{dur=0;startRec($('#sRec'))}};
-$('#tRec').onclick=()=>{if(recOn)stopRec();else{if(!finalTxt)dur=0;startRec($('#tRec'))}};
+$('#sRec').onclick=()=>{if(recOn)stopRec();else{mode='read';dur=0;startRec($('#sRec'))}};
+$('#tRec').onclick=()=>{if(recOn)stopRec();else{if(mode!=='free'){finalTxt=''};mode='free';if(!finalTxt)dur=0;startRec($('#tRec'))}};
 function scoreRead(){
   const said=(finalTxt+' '+partTxt).trim(),s=S[cur];
   $('#sLive').textContent=said?'Máy nghe được: “'+said+'”':'';
@@ -466,6 +726,7 @@ function scoreRead(){
   const raw=s[1].split(/\s+/),tg=toks(s[1]),sp=toks(said),ok=align(tg,sp);
   const hit=ok.filter(Boolean).length,extra=Math.max(0,sp.length-hit);
   let p=Math.round(hit/tg.length*100-Math.min(15,extra*3));p=Math.max(0,Math.min(100,p));
+  // map back to display words
   let k=0,html='';const miss=[];
   raw.forEach(w=>{const n=toks(w).length||1;const good=ok.slice(k,k+n).every(Boolean);if(!good)miss.push(w.replace(/[.,!?]/g,''));html+=`<span class="w ${good?'ok':'miss'}">${esc(w)}</span> `;k+=n});
   if(best[cur]==null||p>best[cur]){best[cur]=p;saveBest();setStat()}
@@ -495,13 +756,7 @@ Lưu ý: chỉ dựa vào văn bản nhận dạng nên chỉ nói "có thể", 
   catch(e){box.innerHTML=`<div class="note">${e&&e.code==='rate_limited'?'Đang hỏi quá nhiều, anh chờ một lát rồi thử lại.':'Chưa lấy được nhận xét.'}</div>`;$('#sAsk').disabled=false}
 }
 $('#tGrade').onclick=async()=>{
-  if(!SM){
-    const txt=finalTxt.trim(),t=T[+$('#tSel').value];
-    const msg=`Chấm bài nói tiếng Anh của tôi (đề: "${t[0]}"): "${txt}"`;
-    try{await navigator.clipboard.writeText(msg);toast('Bản file không chấm bằng Claude được. Đã copy bài nói, anh dán vào Claude để chấm.')}
-    catch(e){toast('Bản file không chấm bằng Claude được. Anh copy bài nói ở trên gửi Claude để chấm.')}
-    return;
-  }
+  if(!SM){toast('Chức năng chấm bằng Claude chưa sẵn sàng trên trình duyệt này.');return}
   const t=T[+$('#tSel').value],txt=finalTxt.trim(),wc=toks(txt).length,wpm=dur>0?Math.round(wc/(dur/60)):0;
   const box=$('#tResult');box.innerHTML='<div class="fb">Claude đang chấm…</div>';$('#tGrade').disabled=true;
   const prompt=`Bạn là giám khảo speaking tiếng Anh, chấm cho một nhân viên kế toán người Việt (trình độ khoảng A2–B1), mục tiêu giao tiếp công sở.
@@ -550,9 +805,9 @@ function webDictation(){
   };
 }
 (async()=>{
-  for(let i=0;i<20&&!(window.claude&&window.claude.use);i++)await new Promise(r=>setTimeout(r,100));
-  try{D=window.claude&&window.claude.use&&await window.claude.use('dictation')}catch(e){D=null}
-  try{SM=window.claude&&window.claude.use&&await window.claude.use('sample')}catch(e){SM=null}
+  for(let i=0;i<30&&!(window.claude&&window.claude.use);i++)await new Promise(r=>setTimeout(r,100));
+  try{D=window.claude&&await window.claude.use('dictation')}catch(e){D=null}
+  try{SM=window.claude&&await window.claude.use('sample')}catch(e){SM=null}
   if(!D)D=webDictation();
   if(!D)$('#micOff').style.display='';
   if(D){
@@ -562,6 +817,66 @@ function webDictation(){
   }
 })();
 showSent();showTopic();setStat();
+// ===== PHẢN XẠ =====
+let PX=null,pu=0,pi=0,pxT=null;let pxS={};try{pxS=JSON.parse(localStorage.getItem('ttpx')||'{}')}catch(e){}
+const savePx=()=>{try{localStorage.setItem('ttpx',JSON.stringify(pxS))}catch(e){}};
+const pk=()=>pu+':'+pi;
+function pxProg(){if(!PX)return;const tot=PX.reduce((a,u)=>a+u.i.length,0),n=Object.values(pxS).filter(x=>x.s!=null).length,un=PX[pu].i.filter((_,k)=>pxS[pu+':'+k]&&pxS[pu+':'+k].s!=null).length;
+  $('#pxProg').textContent=`Unit này: ${un}/${PX[pu].i.length} câu · Tổng: ${n}/${tot} câu đã làm`;$('#pxBar').style.width=(un/PX[pu].i.length*100)+'%'}
+function pxFill(){let h='',sec='';PX.forEach((u,k)=>{if(u.s!==sec){if(sec)h+='</optgroup>';sec=u.s;h+=`<optgroup label="${esc(sec||'')}">`}h+=`<option value="${k}">${esc(u.t)}</option>`});$('#pxU').innerHTML=h+'</optgroup>';pxFillI()}
+function pxFillI(){$('#pxI').innerHTML=PX[pu].i.map((it,k)=>{const r=pxS[pu+':'+k];return `<option value="${k}">${k+1}${r&&r.s!=null?(r.s>=8?' ✅':' 🟡'):''}</option>`}).join('');$('#pxI').value=pi}
+function pxShow(){
+  clearInterval(pxT);const it=PX[pu].i[pi],r=pxS[pk()]||{};$('#pxU').value=pu;$('#pxI').value=pi;
+  $('#pxCard').innerHTML=`<div class="prog">${esc(PX[pu].t)} · Câu ${pi+1}/${PX[pu].i.length}</div>
+  <div class="en" style="font-size:1.25rem;margin:6px 0">🇻🇳 ${esc(it[0])}</div>
+  <div id="pxTime" class="prog"></div>
+  ${it[1]?`<button class="btn" id="pxHintB">💡 Gợi ý từ vựng</button><div class="note" id="pxHint" style="display:none">${esc(it[1])}</div>`:''}
+  ${it[2]?`<div class="qx">📄 Bài anh đã làm trong file: <i>${esc(it[2])}</i></div>`:''}
+  <textarea id="pxIn" rows="2" style="width:100%;margin-top:10px;font:inherit;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)" placeholder="Gõ câu tiếng Anh, hoặc bấm 🎙 để nói…">${esc(r.a||'')}</textarea>
+  <div class="live" id="pxLive"></div>
+  <div class="acts"><button class="btn mic" id="pxRec">🎙 Nói</button><button class="btn pri" id="pxCheck">✅ Chấm</button><button class="btn" id="pxShowA">👀 Xem câu mẫu</button><button class="btn" id="pxGo">Câu tiếp ▶</button></div>
+  <div id="pxRes"></div>`;
+  const hb=$('#pxHintB');if(hb)hb.onclick=()=>{$('#pxHint').style.display=''};
+  $('#pxRec').onclick=()=>{if(recOn)stopRec();else{mode='px';dur=0;startRec($('#pxRec'))}};
+  $('#pxCheck').onclick=()=>pxGrade(false);$('#pxShowA').onclick=()=>pxGrade(true);$('#pxGo').onclick=()=>$('#pxNext').click();
+  if(r.res)pxRender(r.res);
+  if($('#pxTimer').checked&&!r.res){let t=10;$('#pxTime').textContent='⏱ '+t+' giây';pxT=setInterval(()=>{t--;$('#pxTime').textContent=t>0?'⏱ '+t+' giây':'⏰ Hết giờ! Nói hoặc viết ngay.';if(t<=0)clearInterval(pxT)},1000)}
+  pxProg();
+}
+function pxRender(res){
+  const box=$('#pxRes');if(!box)return;
+  const er=(res.errors||[]).map(x=>`<tr><td style="color:#c0392b">${esc(x.wrong||'')}</td><td><b style="color:var(--accent)">${esc(x.right||'')}</b></td><td>${esc(x.why||'')}</td></tr>`).join('');
+  box.innerHTML=`${res.score!=null?`<div class="score"><div class="ring" style="background:${grade(res.score*10)[1]}">${res.score}</div><div><b>${esc(res.verdict||'')}</b><br><span class="prog">Điểm /10</span></div></div>`:''}
+  <div class="fb"><b>Câu mẫu:</b> ${esc(res.model||'')}<br><span class="ipa">${esc(res.ipa||'')}</span>${(res.alt||[]).length?`<br><b>Cách nói khác:</b> ${res.alt.map(esc).join(' / ')}`:''}</div>
+  <div class="acts"><button class="btn" id="pxSay">🔊 Nghe câu mẫu</button><button class="btn" id="pxSlow">🐢 Chậm</button></div>
+  ${er?`<table style="margin-top:8px"><thead><tr><th>Anh viết</th><th>Nên là</th><th>Vì sao</th></tr></thead><tbody>${er}</tbody></table>`:''}
+  ${res.tip?`<div class="note">${esc(res.tip)}</div>`:''}`;
+  $('#pxSay').onclick=()=>say(res.model,0.9);$('#pxSlow').onclick=()=>say(res.model,0.6);
+}
+async function pxGrade(onlyModel){
+  clearInterval(pxT);
+  if(!SM){toast('Chức năng chấm bằng Claude chưa sẵn sàng. Mở trang bằng Chrome hoặc ứng dụng Claude.');return}
+  const it=PX[pu].i[pi],ans=$('#pxIn').value.trim(),key=pk();
+  if(!onlyModel&&!ans){toast('Anh viết hoặc nói câu trả lời trước nhé.');return}
+  const cached=pxS[key];if(onlyModel&&cached&&cached.res){pxRender(cached.res);return}
+  $('#pxRes').innerHTML='<div class="fb">Claude đang '+(onlyModel?'soạn câu mẫu…':'chấm…')+'</div>';
+  const prompt=`Bạn là giáo viên tiếng Anh giao tiếp cho người Việt (trình độ A2–B1). Bài tập phản xạ: dịch câu tiếng Việt sang tiếng Anh tự nhiên như người bản xứ nói.
+Câu tiếng Việt: "${it[0]}"
+Gợi ý từ vựng có sẵn: ${it[1]||'(không có)'}
+${onlyModel?'Người học chưa trả lời, chỉ cần câu mẫu.':`Câu người học viết/nói: "${ans}"`}
+Trả về JSON đúng dạng (giải thích bằng tiếng Việt, ngắn):
+{"score":${onlyModel?'null':'0-10 (10 = đúng nghĩa, đúng ngữ pháp, tự nhiên; lỗi chính tả nhỏ trừ ít)'},"verdict":"${onlyModel?'':'1 câu nhận xét chung'}","model":"câu tiếng Anh mẫu tự nhiên, thông dụng","ipa":"phiên âm IPA của câu mẫu (giọng Mỹ)","alt":["tối đa 2 cách nói khác"],"errors":[${onlyModel?'':'{"wrong":"phần sai","right":"sửa thành","why":"giải thích ngắn"}'}],"tip":"1 mẹo ngữ pháp hoặc cách dùng từ trong câu này"}
+Nếu câu người học đúng và tự nhiên thì errors để rỗng. Tối đa 4 lỗi.`;
+  try{const res=await SM.json(prompt,{modelTier:'quick'});const prev=pxS[key]||{};pxS[key]={a:ans||prev.a||'',s:onlyModel?prev.s:res.score,res};savePx();pxRender(res);pxFillI();pxProg()}
+  catch(err){$('#pxRes').innerHTML=`<div class="note">${err&&err.code==='rate_limited'?'Đang chấm quá nhiều, anh chờ một lát rồi thử lại.':'Chưa chấm được, anh thử lại nhé.'}</div>`}
+}
+$('#pxU').onchange=()=>{pu=+$('#pxU').value;pi=0;pxFillI();pxShow()};
+$('#pxI').onchange=()=>{pi=+$('#pxI').value;pxShow()};
+$('#pxPrev').onclick=()=>{if(pi>0)pi--;else{pu=(pu-1+PX.length)%PX.length;pi=PX[pu].i.length-1;pxFillI()}pxShow()};
+$('#pxNext').onclick=()=>{if(pi<PX[pu].i.length-1)pi++;else{pu=(pu+1)%PX.length;pi=0;pxFillI()}pxShow()};
+$('#pxRand').onclick=()=>{pi=Math.floor(Math.random()*PX[pu].i.length);pxShow()};
+fetch('px.json').then(r=>r.json()).then(d=>{PX=d;try{const l=JSON.parse(localStorage.getItem('ttpxpos')||'null');if(l){pu=l[0];pi=l[1]}}catch(e){}if(!PX[pu])pu=0;if(!PX[pu].i[pi])pi=0;pxFill();pxShow()}).catch(()=>{$('#pxCard').innerHTML='<div class="note">Không tải được bộ câu. Anh tải lại trang nhé.</div>'});
+setInterval(()=>{try{localStorage.setItem('ttpxpos',JSON.stringify([pu,pi]))}catch(e){}},5000);
 renderList();buildDeck();renderV();
 </script>
 </body>
