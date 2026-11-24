@@ -839,18 +839,20 @@ function pxShow(){
   <div class="en" style="font-size:1.25rem;margin:6px 0">🇻🇳 ${esc(it[0])}</div>
   <div id="pxTime" class="prog"></div>
   ${it[1]?`<button class="btn" id="pxHintB">💡 Gợi ý từ vựng</button><div class="note" id="pxHint" style="display:none">${esc(it[1])}</div>`:''}
-  ${it[2]?`<div class="qx">📄 Bài anh đã làm trong file: <i>${esc(it[2])}</i></div>`:''}
+  ${it[2]?`<button class="btn" id="pxFileB">📄 Xem bài đã làm trong file</button><div class="qx" id="pxFile" style="display:none">📄 Bài anh đã làm trong file: <i>${esc(it[2])}</i></div>`:''}
   <textarea id="pxIn" rows="2" style="width:100%;margin-top:10px;font:inherit;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)" placeholder="Gõ câu tiếng Anh, hoặc bấm 🎙 để nói…">${esc(r.a||'')}</textarea>
   <div class="live" id="pxLive"></div>
   <div class="acts"><button class="btn mic" id="pxRec">🎙 Nói</button><button class="btn pri" id="pxCheck">✅ Chấm</button><button class="btn" id="pxShowA">👀 Xem câu mẫu</button><button class="btn" id="pxGo">Câu tiếp ▶</button></div>
   <div id="pxRes"></div>`;
   const hb=$('#pxHintB');if(hb)hb.onclick=()=>{$('#pxHint').style.display=''};
+  const fb=$('#pxFileB');if(fb)fb.onclick=pxFileShow;
   $('#pxRec').onclick=()=>{if(recOn)stopRec();else{mode='px';dur=0;startRec($('#pxRec'))}};
   $('#pxCheck').onclick=()=>pxGrade(false);$('#pxShowA').onclick=()=>pxGrade(true);$('#pxGo').onclick=()=>$('#pxNext').click();
-  if(r.res)pxRender(r.res);
+  if(r.res){pxRender(r.res);pxFileShow()}
   if($('#pxTimer').checked&&!r.res){let t=10;$('#pxTime').textContent='⏱ '+t+' giây';pxT=setInterval(()=>{t--;$('#pxTime').textContent=t>0?'⏱ '+t+' giây':'⏰ Hết giờ! Nói hoặc viết ngay.';if(t<=0)clearInterval(pxT)},1000)}
   pxProg();
 }
+function pxFileShow(){const f=$('#pxFile'),b=$('#pxFileB');if(f)f.style.display='';if(b)b.style.display='none'}
 function pxRender(res){
   const box=$('#pxRes');if(!box)return;
   const er=(res.errors||[]).map(x=>`<tr><td style="color:#c0392b">${esc(x.wrong||'')}</td><td><b style="color:var(--accent)">${esc(x.right||'')}</b></td><td>${esc(x.why||'')}</td></tr>`).join('');
@@ -863,10 +865,10 @@ function pxRender(res){
 }
 async function pxGrade(onlyModel){
   clearInterval(pxT);
-  if(!SM){toast('Chức năng chấm bằng Claude chưa sẵn sàng. Mở trang bằng Chrome hoặc ứng dụng Claude.');return}
+  if(!SM){pxFileShow();toast('Chấm bằng Claude chỉ chạy trong bản artifact. Ở đây anh so với bài đã làm trong file.');return}
   const it=PX[pu].i[pi],ans=$('#pxIn').value.trim(),key=pk();
   if(!onlyModel&&!ans){toast('Anh viết hoặc nói câu trả lời trước nhé.');return}
-  const cached=pxS[key];if(onlyModel&&cached&&cached.res){pxRender(cached.res);return}
+  const cached=pxS[key];if(onlyModel&&cached&&cached.res){pxRender(cached.res);pxFileShow();return}
   $('#pxRes').innerHTML='<div class="fb">Claude đang '+(onlyModel?'soạn câu mẫu…':'chấm…')+'</div>';
   const prompt=`Bạn là giáo viên tiếng Anh giao tiếp cho người Việt (trình độ A2–B1). Bài tập phản xạ: dịch câu tiếng Việt sang tiếng Anh tự nhiên như người bản xứ nói.
 Câu tiếng Việt: "${it[0]}"
@@ -875,7 +877,7 @@ ${onlyModel?'Người học chưa trả lời, chỉ cần câu mẫu.':`Câu ng
 Trả về JSON đúng dạng (giải thích bằng tiếng Việt, ngắn):
 {"score":${onlyModel?'null':'0-10 (10 = đúng nghĩa, đúng ngữ pháp, tự nhiên; lỗi chính tả nhỏ trừ ít)'},"verdict":"${onlyModel?'':'1 câu nhận xét chung'}","model":"câu tiếng Anh mẫu tự nhiên, thông dụng","ipa":"phiên âm IPA của câu mẫu (giọng Mỹ)","alt":["tối đa 2 cách nói khác"],"errors":[${onlyModel?'':'{"wrong":"phần sai","right":"sửa thành","why":"giải thích ngắn"}'}],"tip":"1 mẹo ngữ pháp hoặc cách dùng từ trong câu này"}
 Nếu câu người học đúng và tự nhiên thì errors để rỗng. Tối đa 4 lỗi.`;
-  try{const res=await SM.json(prompt,{modelTier:'quick'});const prev=pxS[key]||{};pxS[key]={a:ans||prev.a||'',s:onlyModel?prev.s:res.score,res};savePx();pxRender(res);pxFillI();pxProg()}
+  try{const res=await SM.json(prompt,{modelTier:'quick'});pxFileShow();const prev=pxS[key]||{};pxS[key]={a:ans||prev.a||'',s:onlyModel?prev.s:res.score,res};savePx();pxRender(res);pxFillI();pxProg()}
   catch(err){$('#pxRes').innerHTML=`<div class="note">${err&&err.code==='rate_limited'?'Đang chấm quá nhiều, anh chờ một lát rồi thử lại.':'Chưa chấm được, anh thử lại nhé.'}</div>`}
 }
 $('#pxU').onchange=()=>{pu=+$('#pxU').value;pi=0;pxFillI();pxShow()};
